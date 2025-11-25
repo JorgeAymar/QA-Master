@@ -35,3 +35,17 @@ export async function getSession() {
     const payload = await decrypt(session);
     return payload;
 }
+
+import { prisma } from '@/lib/prisma';
+
+export async function getUserLanguage() {
+    const session = await getSession();
+    if (!session?.userId) return 'es';
+
+    const user = await prisma.user.findUnique({
+        where: { id: session.userId as string },
+        select: { language: true }
+    });
+
+    return user?.language || 'es';
+}

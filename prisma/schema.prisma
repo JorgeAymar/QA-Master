@@ -18,6 +18,8 @@ model User {
   email     String   @unique
   password  String
   name      String?
+  image     String?  @db.Text // Use Text for Base64 storage
+  language  String   @default("es")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -39,7 +41,8 @@ model Feature {
   name      String
   projectId String
   project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  stories   UserStory[]
+  userStories   UserStory[]
+  order              Int          @default(0)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 }
@@ -54,6 +57,7 @@ model UserStory {
   featureId          String?
   feature            Feature?     @relation(fields: [featureId], references: [id])
   testResults        TestResult[]
+  order              Int          @default(0)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }

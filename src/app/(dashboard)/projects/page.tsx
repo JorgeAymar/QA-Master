@@ -13,19 +13,24 @@ interface ProjectWithCounts {
     };
 }
 
+import { getUserLanguage } from '@/lib/session';
+import { getDictionary } from '@/lib/dictionaries';
+
 export default async function ProjectsPage() {
     const projects = await getProjects() as unknown as ProjectWithCounts[];
+    const lang = await getUserLanguage();
+    const dict = getDictionary(lang);
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
+                <h1 className="text-2xl font-bold text-slate-900">{dict.dashboard.projectsTitle}</h1>
                 <Link
                     href="/projects/new"
                     className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                 >
                     <Plus className="h-4 w-4" />
-                    New Project
+                    {dict.dashboard.newProject}
                 </Link>
             </div>
 
@@ -48,7 +53,7 @@ export default async function ProjectsPage() {
                         <div className="flex items-center gap-4 text-xs text-slate-500">
                             <div className="flex items-center gap-1">
                                 <FileText className="h-3 w-3" />
-                                <span>{project._count.stories} Stories</span>
+                                <span>{project._count.stories} {dict.project.stories}</span>
                             </div>
                             <div className="flex items-center gap-1">
                                 <PlayCircle className="h-3 w-3" />
@@ -66,7 +71,7 @@ export default async function ProjectsPage() {
                         <div className="rounded-full bg-slate-100 p-3">
                             <Globe className="h-6 w-6 text-slate-400" />
                         </div>
-                        <h3 className="mt-4 text-sm font-semibold text-slate-900">No projects</h3>
+                        <h3 className="mt-4 text-sm font-semibold text-slate-900">{dict.dashboard.noProjects}</h3>
                         <p className="mt-1 text-sm text-slate-500">
                             Get started by creating a new project.
                         </p>
@@ -74,7 +79,7 @@ export default async function ProjectsPage() {
                             href="/projects/new"
                             className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                         >
-                            Create Project
+                            {dict.common.create}
                         </Link>
                     </div>
                 )}

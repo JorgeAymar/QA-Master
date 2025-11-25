@@ -4,15 +4,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, FolderKanban, LogOut, User, Bug } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
+import { Dictionary } from '@/lib/dictionaries';
 
-const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Projects', href: '/projects', icon: FolderKanban },
-    { name: 'Profile', href: '/profile', icon: User },
-];
+interface SidebarProps {
+    dict: Dictionary;
+}
 
-export function Sidebar() {
+export function Sidebar({ dict }: SidebarProps) {
     const pathname = usePathname();
+
+    const navigation = [
+        { name: dict.sidebar.dashboard, href: '/', icon: LayoutDashboard },
+        { name: dict.sidebar.projects, href: '/projects', icon: FolderKanban },
+        { name: dict.sidebar.profile, href: '/profile', icon: User },
+    ];
 
     return (
         <div className="flex h-screen w-64 flex-col bg-slate-900 text-white">
@@ -48,7 +53,7 @@ export function Sidebar() {
                 <form action={logout}>
                     <button className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
                         <LogOut className="h-5 w-5 text-slate-400 group-hover:text-white" />
-                        Sign out
+                        {dict.sidebar.signOut}
                     </button>
                 </form>
             </div>

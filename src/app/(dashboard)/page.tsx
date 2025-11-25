@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Plus, ArrowRight, CheckCircle, Clock, FolderKanban, LayoutDashboard, PlayCircle } from 'lucide-react';
+import { CheckCircle, FolderKanban, LayoutDashboard, PlayCircle } from 'lucide-react';
 
 async function getStats() {
   const totalProjects = await prisma.project.count();

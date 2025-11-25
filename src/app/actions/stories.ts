@@ -40,9 +40,52 @@ export async function createStory(projectId: string, formData: FormData) {
     // redirect(`/projects/${projectId}`); // Removed redirect to allow multiple additions or stay on page
 }
 
-export async function deleteStory(storyId: string, projectId: string) {
+export async function deleteStory(id: string, projectId: string) {
     await prisma.userStory.delete({
-        where: { id: storyId }
+        where: { id },
     });
+
+    revalidatePath(`/projects/${projectId}`);
+}
+
+export async function moveStory(storyId: string, newFeatureId: string | null, projectId: string) {
+    await prisma.userStory.update({
+        where: { id: storyId },
+        data: { featureId: newFeatureId },
+    });
+
+    revalidatePath(`/projects/${projectId}`);
+}
+
+export async function reorderStories(items: { id: string; order: number }[], projectId: string) {
+    const transaction = items.map((item) =>
+        prisma.userStory.update({
+            where: { id: item.id },
+            data: { order: item.order },
+        })
+    );
+
+    await prisma.$transaction(transaction);
+    revalidatePath(`/projects/${projectId}`);
+}
+
+export async function updateStory(storyId: string, projectId: string, formData: FormData) {
+    const title = formData.get('title') as string;
+    const acceptanceCriteria = formData.get('acceptanceCriteria') as string;
+    const featureId = formData.get('featureId') as string;
+
+    if (!title || !acceptanceCriteria) {
+        return;
+    }
+
+    await prisma.userStory.update({
+        where: { id: storyId },
+        data: {
+            title,
+            acceptanceCriteria,
+            featureId: featureId || null,
+        },
+    });
+
     revalidatePath(`/projects/${projectId}`);
 }

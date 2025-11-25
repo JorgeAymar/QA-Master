@@ -2,12 +2,12 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { NewStoryForm } from '@/components/stories/NewStoryForm';
+import { EditStoryForm } from '@/components/stories/EditStoryForm';
 import { getUserLanguage } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
-export default async function NewStoryPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default async function EditStoryPage({ params }: { params: Promise<{ id: string; storyId: string }> }) {
+    const { id, storyId } = await params;
     const lang = await getUserLanguage();
     const dict = getDictionary(lang);
 
@@ -16,7 +16,11 @@ export default async function NewStoryPage({ params }: { params: Promise<{ id: s
         include: { features: true },
     });
 
-    if (!project) {
+    const story = await prisma.userStory.findUnique({
+        where: { id: storyId },
+    });
+
+    if (!project || !story) {
         notFound();
     }
 
@@ -30,12 +34,12 @@ export default async function NewStoryPage({ params }: { params: Promise<{ id: s
                     <ArrowLeft className="h-5 w-5" />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">{dict.forms.newStoryTitle}</h1>
-                    <p className="text-sm text-slate-500">{dict.forms.newStorySubtitle} {project.name}</p>
+                    <h1 className="text-2xl font-bold text-slate-900">{dict.forms.editStoryTitle}</h1>
+                    <p className="text-sm text-slate-500">{dict.forms.editStorySubtitle} {project.name}</p>
                 </div>
             </div>
 
-            <NewStoryForm projectId={id} features={project.features} dict={dict} />
+            <EditStoryForm projectId={id} story={story} features={project.features} dict={dict} />
         </div>
     );
 }
