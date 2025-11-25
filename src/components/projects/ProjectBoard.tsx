@@ -61,6 +61,14 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        setStories(initialStories.sort((a, b) => a.order - b.order));
+    }, [initialStories]);
+
+    useEffect(() => {
+        setFeatures(initialFeatures.sort((a, b) => a.order - b.order));
+    }, [initialFeatures]);
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -278,7 +286,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                                 </div>
                             </SortableContext>
                             {(!storiesByFeature[feature.id] || storiesByFeature[feature.id].length === 0) && (
-                                <p className="text-sm text-slate-400 italic">No stories in this feature yet.</p>
+                                <p className="text-sm text-slate-400 italic">{dict.project.noStories}</p>
                             )}
                         </SortableFeatureGroup>
                     ))}
@@ -289,7 +297,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                         <div className="mb-4 flex items-center gap-2">
                             <h3 className="text-lg font-semibold text-slate-900">{dict.project.uncategorized}</h3>
                             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                                {uncategorizedStories.length} stories
+                                {uncategorizedStories.length} {dict.project.storiesCount}
                             </span>
                         </div>
                         <SortableContext
@@ -310,9 +318,9 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                         <div className="rounded-full bg-slate-50 p-4 mb-4">
                             <LayoutDashboard className="h-8 w-8 text-slate-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-900">Start by creating a feature</h3>
+                        <h3 className="text-lg font-semibold text-slate-900">{dict.project.startFeatureTitle}</h3>
                         <p className="mt-1 text-sm text-slate-500 max-w-sm mx-auto">
-                            Features help you organize your user stories. Create one using the form on the left.
+                            {dict.project.startFeatureDesc}
                         </p>
                     </div>
                 )}

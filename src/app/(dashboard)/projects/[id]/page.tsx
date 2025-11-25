@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { getProjectStories } from '@/app/actions/stories';
 import { createFeature } from '@/app/actions/features';
-import { runTests } from '@/app/actions/testing';
-import { Plus, ArrowLeft, FolderPlus, Play, FileText, LayoutDashboard, CheckCircle2, Clock, AlertCircle, Pencil, Github } from 'lucide-react';
+
+import { ArrowLeft, FolderPlus, LayoutDashboard, CheckCircle2, Clock, AlertCircle, Pencil, Github, Globe, FileText } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { FeatureGroup } from '@/components/features/FeatureGroup';
 import { StoryCard } from '@/components/stories/StoryCard';
@@ -92,6 +92,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             </div>
                             {project.description && (
                                 <div className="flex items-center gap-2 group">
+                                    <FileText className="h-4 w-4 text-slate-400" />
                                     <p className="text-slate-600 max-w-2xl text-sm leading-relaxed">
                                         {project.description}
                                     </p>
@@ -105,6 +106,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 </div>
                             )}
                             <div className="flex items-center gap-2 group">
+                                <Globe className="h-4 w-4 text-slate-400" />
                                 <a href={project.baseUrl} target="_blank" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
                                     {project.baseUrl}
                                 </a>
@@ -122,10 +124,10 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                         href={`https://github.com/${project.githubRepo}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-sm text-slate-600 hover:text-slate-900 hover:underline flex items-center gap-1"
+                                        className="text-sm text-slate-600 hover:text-slate-900 hover:text-blue-600 hover:underline flex items-center gap-1"
                                     >
                                         <Github className="h-3.5 w-3.5" />
-                                        {project.githubRepo}
+                                        {dict.project.github} {project.githubRepo}
                                     </a>
                                     <Link
                                         href={`/projects/${project.id}/edit`}
@@ -142,35 +144,14 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                         className="text-sm text-slate-400 hover:text-blue-600 flex items-center gap-1 transition-colors"
                                     >
                                         <Github className="h-3.5 w-3.5" />
-                                        <span>Add GitHub Repo</span>
+                                        <span>{dict.project.addGithub}</span>
                                         <Pencil className="h-3 w-3 ml-1 opacity-50" />
                                     </Link>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <Link
-                                href={`/projects/${project.id}/report`}
-                                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 hover:text-blue-600 transition-all"
-                            >
-                                <FileText className="h-4 w-4" />
-                                {dict.project.report}
-                            </Link>
-                            <form action={runTests.bind(null, project.id)}>
-                                <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition-all">
-                                    <Play className="h-4 w-4" />
-                                    {dict.project.runTests}
-                                </button>
-                            </form>
-                            <Link
-                                href={`/projects/${project.id}/stories/new`}
-                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-all"
-                            >
-                                <Plus className="h-4 w-4" />
-                                {dict.project.newStory}
-                            </Link>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -196,7 +177,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <CheckCircle2 className="h-6 w-6 text-green-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">Completed</p>
+                                <p className="text-sm font-medium text-slate-500">{dict.project.completed}</p>
                                 <div className="flex items-baseline gap-2">
                                     <p className="text-2xl font-bold text-slate-900">{completedStories}</p>
                                     <span className="text-sm font-medium text-green-600">({completionRate}%)</span>
@@ -211,7 +192,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <Clock className="h-6 w-6 text-yellow-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">Pending</p>
+                                <p className="text-sm font-medium text-slate-500">{dict.project.pending}</p>
                                 <p className="text-2xl font-bold text-slate-900">{pendingStories}</p>
                             </div>
                         </div>
@@ -243,9 +224,9 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             <div className="flex items-start gap-3">
                                 <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                                 <div className="space-y-1">
-                                    <h4 className="text-sm font-medium text-blue-900">Pro Tip</h4>
+                                    <h4 className="text-sm font-medium text-blue-900">{dict.project.proTipTitle}</h4>
                                     <p className="text-xs text-blue-700 leading-relaxed">
-                                        Group your stories into features to keep your project organized and run targeted tests.
+                                        {dict.project.proTipContent}
                                     </p>
                                 </div>
                             </div>

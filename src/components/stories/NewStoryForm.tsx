@@ -14,9 +14,10 @@ interface NewStoryFormProps {
     projectId: string;
     features: Feature[];
     dict: Dictionary;
+    initialFeatureId?: string;
 }
 
-export function NewStoryForm({ projectId, features, dict }: NewStoryFormProps) {
+export function NewStoryForm({ projectId, features, dict, initialFeatureId }: NewStoryFormProps) {
     return (
         <form action={createStory.bind(null, projectId)} className="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="space-y-2">
@@ -40,6 +41,7 @@ export function NewStoryForm({ projectId, features, dict }: NewStoryFormProps) {
                 <select
                     id="featureId"
                     name="featureId"
+                    defaultValue={initialFeatureId || ""}
                     className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 >
                     <option value="">{dict.forms.selectFeature}</option>

@@ -6,8 +6,15 @@ import { NewStoryForm } from '@/components/stories/NewStoryForm';
 import { getUserLanguage } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
-export default async function NewStoryPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function NewStoryPage({
+    params,
+    searchParams
+}: {
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ featureId?: string }>
+}) {
     const { id } = await params;
+    const { featureId } = await searchParams;
     const lang = await getUserLanguage();
     const dict = getDictionary(lang);
 
@@ -35,7 +42,7 @@ export default async function NewStoryPage({ params }: { params: Promise<{ id: s
                 </div>
             </div>
 
-            <NewStoryForm projectId={id} features={project.features} dict={dict} />
+            <NewStoryForm projectId={id} features={project.features} dict={dict} initialFeatureId={featureId} />
         </div>
     );
 }

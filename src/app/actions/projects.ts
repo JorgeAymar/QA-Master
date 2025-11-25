@@ -6,13 +6,33 @@ import { redirect } from 'next/navigation';
 
 export async function getProjects() {
     return await prisma.project.findMany({
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+            { order: 'asc' },
+            { createdAt: 'desc' }
+        ],
         include: {
             _count: {
                 select: { stories: true, testRuns: true }
             }
         }
     });
+}
+
+export async function reorderProjects(items: { id: string; order: number }[]) {
+    try {
+        await prisma.$transaction(
+            items.map((item) =>
+                prisma.project.update({
+                    where: { id: item.id },
+                    data: { order: item.order },
+                })
+            )
+        );
+        revalidatePath('/projects');
+    } catch (error) {
+        console.error('Failed to reorder projects:', error);
+        throw new Error('Failed to reorder projects');
+    }
 }
 
 export async function createProject(formData: FormData) {

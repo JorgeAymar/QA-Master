@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateFeature, deleteFeature } from '@/app/actions/features';
 import { ChevronDown, ChevronRight, Plus, MoreVertical, Pencil, Trash2, GripVertical, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { Dictionary } from '@/lib/dictionaries';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
 interface Feature {
     id: string;
     name: string;
 }
-
-import { Dictionary } from '@/lib/dictionaries';
 
 interface FeatureGroupProps {
     feature: {
@@ -25,8 +26,10 @@ interface FeatureGroupProps {
 }
 
 export function FeatureGroup({ feature, projectId, storyCount, children, dict, dragHandleProps }: FeatureGroupProps) {
+    const router = useRouter();
     const [isExpanded, setIsExpanded] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [name, setName] = useState(feature.name);
 
     async function handleUpdate() {
@@ -39,9 +42,7 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
     }
 
     async function handleDelete() {
-        if (confirm(dict.common.delete + '?')) {
-            await deleteFeature(feature.id, projectId);
-        }
+        setIsDeleteModalOpen(true);
     }
 
     return (
@@ -97,9 +98,16 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
                             <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">
                                 {storyCount} {dict.project.stories}
                             </span>
+                            <Link
+                                href={`/projects/${projectId}/stories/new?featureId=${feature.id}`}
+                                className="ml-2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600"
+                                title={dict.project.newStory}
+                            >
+                                <Plus className="h-4 w-4" />
+                            </Link>
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="ml-2 text-slate-400 hover:text-blue-600"
+                                className="text-slate-400 hover:text-blue-600"
                                 title={dict.project.renameFeature}
                             >
                                 <Pencil className="h-4 w-4" />
@@ -124,6 +132,28 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
                     {children}
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={async () => {
+                    await deleteFeature(feature.id, projectId);
+                    router.refresh();
+                }}
+                title={dict.project.deleteFeature}
+                message={
+                    <span>
+                        {dict.project.deleteFeature} <strong>"{feature.name}"</strong>?
+                        <br />
+                        <span className="text-sm text-slate-500 mt-2 block">
+                            {dict.common.cannotUndo}
+                        </span>
+                    </span>
+                }
+                confirmText={dict.common.delete}
+                cancelText={dict.forms.cancel}
+                isDangerous={true}
+            />
         </div>
     );
 }

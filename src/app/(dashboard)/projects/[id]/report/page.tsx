@@ -22,6 +22,8 @@ interface StoryWithResults {
 import { getUserLanguage } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
+import { logActivity } from '@/lib/activity';
+
 export default async function ProjectReportPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const lang = await getUserLanguage();
@@ -49,6 +51,9 @@ export default async function ProjectReportPage({ params }: { params: Promise<{ 
         notFound();
     }
 
+    // Log activity
+    await logActivity(project.id, 'VIEW_REPORT', 'PROJECT', project.name);
+
     const stories = project.stories as unknown as StoryWithResults[];
     const passedStories = stories.filter((s) => s.status === 'COMPLETED').length;
     const totalStories = stories.length;
@@ -72,7 +77,7 @@ export default async function ProjectReportPage({ params }: { params: Promise<{ 
                     <p className="text-2xl font-bold text-green-600">{passedStories}</p>
                 </div>
                 <div className="rounded-lg bg-slate-50 p-4">
-                    <p className="text-sm font-medium text-slate-500">Coverage</p>
+                    <p className="text-sm font-medium text-slate-500">{dict.report.coverage}</p>
                     <p className="text-2xl font-bold text-blue-600">{coverage}%</p>
                 </div>
             </div>
@@ -104,7 +109,7 @@ export default async function ProjectReportPage({ params }: { params: Promise<{ 
                                         ) : (
                                             <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
                                                 <Clock className="h-4 w-4" />
-                                                Pending
+                                                {dict.project.pending}
                                             </div>
                                         )}
                                     </div>
@@ -117,7 +122,7 @@ export default async function ProjectReportPage({ params }: { params: Promise<{ 
                                 )}
                                 {lastResult && lastResult.screenshot && (
                                     <div className="mt-4">
-                                        <p className="text-xs font-medium text-slate-500 mb-2">{dict.report.screenshot}:</p>
+                                        <p className="text-xs font-medium text-slate-500 mb-2">{dict.report.testScreenshot}:</p>
                                         <img src={lastResult.screenshot} alt="Test Screenshot" className="rounded border border-slate-200 max-w-full h-auto shadow-sm" />
                                     </div>
                                 )}
@@ -128,7 +133,7 @@ export default async function ProjectReportPage({ params }: { params: Promise<{ 
             </div>
 
             <div className="print:hidden mt-8 flex justify-end">
-                <PrintButton />
+                <PrintButton label={dict.report.print} />
             </div>
         </div>
     );

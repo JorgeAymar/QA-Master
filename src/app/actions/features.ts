@@ -2,6 +2,9 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { logActivity } from '@/lib/activity';
+
+// ...
 
 export async function createFeature(projectId: string, formData: FormData) {
     const name = formData.get('name') as string;
@@ -17,13 +20,20 @@ export async function createFeature(projectId: string, formData: FormData) {
         },
     });
 
+    await logActivity(projectId, 'CREATE', 'FEATURE', name);
+
     revalidatePath(`/projects/${projectId}`);
 }
 
 export async function deleteFeature(featureId: string, projectId: string) {
-    await prisma.feature.delete({
-        where: { id: featureId },
-    });
+    const feature = await prisma.feature.findUnique({ where: { id: featureId } });
+
+    if (feature) {
+        await prisma.feature.delete({
+            where: { id: featureId },
+        });
+        await logActivity(projectId, 'DELETE', 'FEATURE', feature.name);
+    }
 
     revalidatePath(`/projects/${projectId}`);
 }

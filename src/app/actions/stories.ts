@@ -2,6 +2,10 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { logActivity } from '@/lib/activity';
+
+// ...
 
 export async function getProjectStories(projectId: string) {
     return await prisma.userStory.findMany({
@@ -36,14 +40,27 @@ export async function createStory(projectId: string, formData: FormData) {
         },
     });
 
+    await logActivity(projectId, 'CREATE', 'STORY', title);
+
     revalidatePath(`/projects/${projectId}`);
-    // redirect(`/projects/${projectId}`); // Removed redirect to allow multiple additions or stay on page
+    redirect(`/projects/${projectId}`);
 }
 
 export async function deleteStory(id: string, projectId: string) {
-    await prisma.userStory.delete({
-        where: { id },
-    });
+    try {
+        const story = await prisma.userStory.findUnique({ where: { id } });
+        if (story) {
+            await prisma.userStory.delete({
+                where: { id },
+            });
+            await logActivity(projectId, 'DELETE', 'STORY', story.title);
+        }
+    } catch (error: any) {
+        // Ignore if record not found (P2025)
+        if (error.code !== 'P2025') {
+            throw error;
+        }
+    }
 
     revalidatePath(`/projects/${projectId}`);
 }
