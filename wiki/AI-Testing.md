@@ -1,36 +1,36 @@
-# Testing con IA
+# AI Testing
 
-QA Master utiliza un enfoque innovador de testing que combina Playwright con GPT-4 para crear un agente de testing inteligente.
+QA Master uses an innovative testing approach that combines Playwright with GPT-4 to create an intelligent testing agent.
 
-## ¿Cómo Funciona?
+## How It Works?
 
-### Loop Agentico
+### Agentic Loop
 
-A diferencia de los tests tradicionales que siguen scripts fijos, QA Master usa un **loop agentico** donde la IA:
+Unlike traditional tests that follow fixed scripts, QA Master uses an **agentic loop** where the AI:
 
-1. **Observa** el estado actual de la página
-2. **Razona** sobre qué acciones tomar
-3. **Actúa** en el navegador (click, escribir, navegar)
-4. **Evalúa** si se cumplieron los criterios
-5. **Repite** hasta completar la validación
+1. **Observes** the current state of the page
+2. **Reasons** about what actions to take
+3. **Acts** in the browser (click, type, navigate)
+4. **Evaluates** if criteria were met
+5. **Repeats** until validation is complete
 
 ```
 ┌─────────────────────────────────────────┐
-│  1. Capturar estado de la página       │
-│     (HTML, elementos visibles)          │
+│  1. Capture page state                  │
+│     (HTML, visible elements)            │
 └──────────────┬──────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────┐
-│  2. Enviar a GPT-4                      │
-│     - Historia de usuario               │
-│     - Criterios de aceptación           │
-│     - Estado actual                     │
+│  2. Send to GPT-4                       │
+│     - User story                        │
+│     - Acceptance criteria               │
+│     - Current state                     │
 └──────────────┬──────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────┐
-│  3. IA decide próxima acción            │
+│  3. AI decides next action              │
 │     - fill(selector, value)             │
 │     - click(selector)                   │
 │     - evaluate(criteria)                │
@@ -38,156 +38,156 @@ A diferencia de los tests tradicionales que siguen scripts fijos, QA Master usa 
                │
                ▼
 ┌─────────────────────────────────────────┐
-│  4. Playwright ejecuta acción           │
+│  4. Playwright executes action          │
 └──────────────┬──────────────────────────┘
                │
                ▼
-         ¿Evaluación final?
+         Final evaluation?
                │
-        No ────┘     Sí
+        No ────┘     Yes
                │      │
                └──────▼
-                  RESULTADO
+                  RESULT
 ```
 
-## Ejemplo de Evaluación
+## Evaluation Example
 
-### Historia de Usuario
+### User Story
 ```
-Título: Login de Usuario
-Criterios:
-- Dado que estoy en la página de login
-- Cuando ingreso email y contraseña válidos
-- Entonces debería ser redirigido al dashboard
+Title: User Login
+Criteria:
+- Given I am on the login page
+- When I enter valid email and password
+- Then I should be redirected to the dashboard
 ```
 
-### Proceso de la IA
+### AI Process
 
-**Iteración 1**:
+**Iteration 1**:
 ```json
 {
   "action": "fill",
   "selector": "input[type='email']",
   "value": "test@example.com",
-  "reasoning": "Necesito ingresar el email primero"
+  "reasoning": "I need to enter the email first"
 }
 ```
 
-**Iteración 2**:
+**Iteration 2**:
 ```json
 {
   "action": "fill",
   "selector": "input[type='password']",
   "value": "password123",
-  "reasoning": "Ahora ingreso la contraseña"
+  "reasoning": "Now I enter the password"
 }
 ```
 
-**Iteración 3**:
+**Iteration 3**:
 ```json
 {
   "action": "click",
   "selector": "button[type='submit']",
-  "reasoning": "Envío el formulario de login"
+  "reasoning": "I submit the login form"
 }
 ```
 
-**Iteración 4 (Evaluación)**:
+**Iteration 4 (Evaluation)**:
 ```json
 {
   "action": "evaluate",
   "status": "PASS",
-  "reasoning": "La URL cambió a /dashboard, el usuario fue redirigido correctamente. Todos los criterios se cumplieron."
+  "reasoning": "The URL changed to /dashboard, the user was redirected correctly. All criteria were met."
 }
 ```
 
-## Ventajas del Testing con IA
+## Advantages of AI Testing
 
-### 1. Adaptabilidad
-- No necesita selectores exactos hardcodeados
-- Se adapta a cambios en la UI
-- Entiende el contexto semántico
+### 1. Adaptability
+- No need for hardcoded exact selectors
+- Adapts to UI changes
+- Understands semantic context
 
-### 2. Razonamiento
-- Explica por qué pasó o falló
-- Identifica problemas específicos
-- Sugiere mejoras
+### 2. Reasoning
+- Explains why it passed or failed
+- Identifies specific problems
+- Suggests improvements
 
-### 3. Menos Mantenimiento
-- Tests más resilientes a cambios
-- No se rompen por cambios cosméticos
-- Enfoque en comportamiento, no en implementación
+### 3. Less Maintenance
+- Tests more resilient to changes
+- Don't break due to cosmetic changes
+- Focus on behavior, not implementation
 
-## Limitaciones
+## Limitations
 
-### 1. Costo
-- Cada test consume tokens de OpenAI
-- Puede ser costoso para muchos tests
+### 1. Cost
+- Each test consumes OpenAI tokens
+- Can be expensive for many tests
 
-### 2. Velocidad
-- Más lento que tests tradicionales
-- Cada iteración requiere llamada a API
+### 2. Speed
+- Slower than traditional tests
+- Each iteration requires an API call
 
-### 3. Determinismo
-- Resultados pueden variar ligeramente
-- Depende de la calidad del modelo
+### 3. Determinism
+- Results may vary slightly
+- Depends on model quality
 
-## Mejores Prácticas
+## Best Practices
 
-### Escribir Buenos Criterios de Aceptación
+### Writing Good Acceptance Criteria
 
-✅ **Bueno**:
+✅ **Good**:
 ```
-- Dado que estoy en la página de productos
-- Cuando hago click en "Agregar al carrito"
-- Entonces veo el contador del carrito incrementarse
-- Y veo un mensaje de confirmación
-```
-
-❌ **Malo**:
-```
-- El botón debe funcionar
-- El carrito debe actualizarse
+- Given I am on the products page
+- When I click on "Add to cart"
+- Then I see the cart counter increment
+- And I see a confirmation message
 ```
 
-### Criterios Específicos y Medibles
+❌ **Bad**:
+```
+- The button should work
+- The cart should update
+```
 
-La IA funciona mejor con criterios:
-- **Específicos**: "El contador muestra '1'" vs "El contador cambia"
-- **Observables**: "Veo un mensaje" vs "El sistema procesa"
-- **Secuenciales**: Paso a paso, no todo junto
+### Specific and Measurable Criteria
 
-### URLs Accesibles
+AI works best with criteria that are:
+- **Specific**: "The counter shows '1'" vs "The counter changes"
+- **Observable**: "I see a message" vs "The system processes"
+- **Sequential**: Step by step, not all at once
 
-Asegúrate de que:
-- La URL del proyecto sea accesible públicamente o desde tu red
-- No requiera autenticación compleja
-- Cargue rápidamente
+### Accessible URLs
 
-## Configuración Avanzada
+Ensure that:
+- The project URL is publicly accessible or reachable from your network
+- Does not require complex authentication (outside the test flow)
+- Loads quickly
 
-### Variables de Entorno
+## Advanced Configuration
+
+### Environment Variables
 
 ```env
 # OpenAI
 OPENAI_API_KEY="sk-..."
-OPENAI_MODEL="gpt-4"  # Opcional, por defecto gpt-4
+OPENAI_MODEL="gpt-4"  # Optional, defaults to gpt-4
 ```
 
-### Timeout y Límites
+### Timeout and Limits
 
-El sistema tiene límites de seguridad:
-- **Max iteraciones**: 10 por test
-- **Timeout**: 60 segundos por acción
-- **Screenshot**: Capturado al final
+The system has safety limits:
+- **Max iterations**: 10 per test
+- **Timeout**: 60 seconds per action
+- **Screenshot**: Captured at the end
 
-## Código Fuente
+## Source Code
 
-El código del testing con IA está en:
-- `src/lib/ai-testing.ts`: Loop agentico principal
-- `src/app/actions/testing.ts`: Server actions para ejecutar tests
+The AI testing code is located at:
+- `src/lib/ai-testing.ts`: Main agentic loop
+- `src/app/actions/testing.ts`: Server actions to execute tests
 
-### Función Principal
+### Main Function
 
 ```typescript
 export async function evaluateStoryWithAI(
@@ -201,8 +201,8 @@ export async function evaluateStoryWithAI(
 }>
 ```
 
-## Próximos Pasos
+## Next Steps
 
-- [Ejecutar Tests](Running-Tests)
-- [Interpretar Reportes](Understanding-Reports)
-- [Arquitectura](Architecture)
+- [Running Tests](Running-Tests)
+- [Understanding Reports](Understanding-Reports)
+- [Architecture](Architecture)

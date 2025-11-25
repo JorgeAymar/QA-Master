@@ -1,107 +1,107 @@
-# Instalación y Configuración
+# Installation and Setup
 
-Esta guía te ayudará a configurar QA Master en tu entorno local.
+This guide will help you set up QA Master in your local environment.
 
-## Requisitos Previos
+## Prerequisites
 
-- **Node.js**: v18 o superior
-- **PostgreSQL**: v14 o superior
-- **npm** o **yarn**
-- **Cuenta OpenAI**: Para obtener API key
+- **Node.js**: v18 or higher
+- **PostgreSQL**: v14 or higher
+- **npm** or **yarn**
+- **OpenAI Account**: To get an API key
 
-## Instalación
+## Installation
 
-### 1. Clonar el Repositorio
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/JorgeAymar/QA-Master.git
 cd QA-Master
 ```
 
-### 2. Instalar Dependencias
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configurar Variables de Entorno
+### 3. Configure Environment Variables
 
-Crea un archivo `.env` en la raíz del proyecto:
+Create a `.env` file in the project root:
 
 ```env
 # Database
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/qa_master"
+DATABASE_URL="postgresql://user:password@localhost:5432/qa_master"
 
 # OpenAI
 OPENAI_API_KEY="sk-..."
 
-# JWT Secret (genera uno aleatorio)
-JWT_SECRET="tu-secreto-super-seguro-aqui"
+# JWT Secret (generate a random one)
+JWT_SECRET="your-super-secure-secret-here"
 ```
 
-> **Nota**: Nunca compartas tu `OPENAI_API_KEY` ni la subas a GitHub.
+> **Note**: Never share your `OPENAI_API_KEY` or upload it to GitHub.
 
-### 4. Configurar Base de Datos
+### 4. Configure Database
 
 ```bash
-# Crear las tablas
+# Create tables
 npx prisma db push
 
-# (Opcional) Poblar con datos de ejemplo
+# (Optional) Populate with seed data
 npx prisma db seed
 ```
 
-### 5. Instalar Playwright
+### 5. Install Playwright
 
 ```bash
 npx playwright install
 ```
 
-## Ejecutar en Desarrollo
+## Run in Development
 
 ```bash
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:3000`
+The application will be available at `http://localhost:3000`
 
-## Crear tu Primera Cuenta
+## Create Your First Account
 
-1. Navega a `http://localhost:3000/signup`
-2. Crea una cuenta con tu email y contraseña
-3. Inicia sesión en `/login`
+1. Navigate to `http://localhost:3000/signup`
+2. Create an account with your email and password
+3. Log in at `/login`
 
-## Verificar Instalación
+## Verify Installation
 
-Para verificar que todo funciona correctamente:
+To verify that everything is working correctly:
 
-1. Crea un proyecto de prueba
-2. Añade una historia de usuario simple
-3. Ejecuta un test
+1. Create a test project
+2. Add a simple user story
+3. Run a test
 
-Si ves resultados y capturas de pantalla, ¡todo está funcionando! 🎉
+If you see results and screenshots, everything is working! 🎉
 
-## Solución de Problemas
+## Troubleshooting
 
-### Error de Conexión a Base de Datos
+### Database Connection Error
 
-Verifica que PostgreSQL esté ejecutándose:
+Verify that PostgreSQL is running:
 ```bash
 psql -U postgres
 ```
 
-### Error de Playwright
+### Playwright Error
 
-Reinstala los navegadores:
+Reinstall browsers:
 ```bash
 npx playwright install --force
 ```
 
-### Error de OpenAI API
+### OpenAI API Error
 
-Verifica que tu API key sea válida y tenga créditos disponibles.
+Verify that your API key is valid and has available credits.
 
-## Próximos Pasos
+## Next Steps
 
-- [Primeros Pasos](Getting-Started)
-- [Gestión de Proyectos](Project-Management)
+- [Getting Started](Getting-Started)
+- [Project Management](Project-Management)

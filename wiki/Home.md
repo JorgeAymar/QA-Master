@@ -4,60 +4,60 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 ![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?style=for-the-badge&logo=prisma)
 
-**QA Master** es una plataforma moderna de testing automatizado que utiliza IA para validar historias de usuario en aplicaciones web. Combina Playwright para automatización de navegador con OpenAI para evaluación inteligente de criterios de aceptación.
+**QA Master** is a modern automated testing platform that uses AI to validate user stories in web applications. It combines Playwright for browser automation with OpenAI for intelligent evaluation of acceptance criteria.
 
-## 🚀 Características Principales
+## 🚀 Key Features
 
-- **Testing con IA**: Evaluación automática de historias de usuario usando GPT-4
-- **Gestión de Proyectos**: Organiza tus proyectos y funcionalidades
-- **Drag & Drop**: Reordena historias y funcionalidades fácilmente
-- **Historial de Ejecuciones**: Visualiza todas las pruebas pasadas con logs y capturas
-- **Internacionalización**: Soporte para Español, Inglés y Portugués
-- **Reportes Detallados**: Capturas de pantalla y razonamiento de la IA
+- **AI Testing**: Automatic evaluation of user stories using GPT-4
+- **Project Management**: Organize your projects and features
+- **Drag & Drop**: Easily reorder stories and features
+- **Execution History**: View all past tests with logs and screenshots
+- **Internationalization**: Support for Spanish, English, and Portuguese
+- **Detailed Reports**: Screenshots and AI reasoning
 
-## 📚 Documentación
+## 📚 Documentation
 
-### Inicio Rápido
-- [Instalación y Configuración](Installation)
-- [Primeros Pasos](Getting-Started)
-- [Variables de Entorno](Environment-Variables)
+### Quick Start
+- [Installation and Setup](Installation)
+- [Getting Started](Getting-Started)
+- [Environment Variables](Environment-Variables)
 
-### Guías de Usuario
-- [Gestión de Proyectos](Project-Management)
-- [Historias de Usuario](User-Stories)
-- [Ejecutar Tests](Running-Tests)
-- [Interpretar Reportes](Understanding-Reports)
+### User Guides
+- [Project Management](Project-Management)
+- [User Stories](User-Stories)
+- [Running Tests](Running-Tests)
+- [Understanding Reports](Understanding-Reports)
 
-### Desarrollo
-- [Arquitectura del Sistema](Architecture)
-- [Estructura del Proyecto](Project-Structure)
-- [Base de Datos](Database-Schema)
-- [API y Server Actions](API-Reference)
+### Development
+- [System Architecture](Architecture)
+- [Project Structure](Project-Structure)
+- [Database Schema](Database-Schema)
+- [API and Server Actions](API-Reference)
 
-### Avanzado
-- [Testing con IA](AI-Testing)
-- [Internacionalización](Internationalization)
+### Advanced
+- [AI Testing](AI-Testing)
+- [Internationalization](Internationalization)
 - [Deployment](Deployment)
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 16, React 19, TailwindCSS 4
 - **Backend**: Next.js Server Actions
-- **Base de Datos**: PostgreSQL con Prisma ORM
-- **Autenticación**: JWT con bcrypt
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT with bcrypt
 - **Testing**: Playwright + OpenAI GPT-4
 - **Drag & Drop**: @dnd-kit
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-Las contribuciones son bienvenidas. Por favor, lee nuestra [Guía de Contribución](Contributing) antes de enviar un PR.
+Contributions are welcome. Please read our [Contribution Guide](Contributing) before submitting a PR.
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la licencia MIT.
+This project is licensed under the MIT License.
 
-## 🔗 Enlaces
+## 🔗 Links
 
-- [Repositorio GitHub](https://github.com/JorgeAymar/QA-Master)
+- [GitHub Repository](https://github.com/JorgeAymar/QA-Master)
 - [Issues](https://github.com/JorgeAymar/QA-Master/issues)
 - [Roadmap](Roadmap)

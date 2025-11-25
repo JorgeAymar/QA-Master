@@ -1,15 +1,15 @@
-# Esquema de Base de Datos
+# Database Schema
 
-QA Master utiliza PostgreSQL con Prisma ORM. Este documento describe el esquema completo.
+QA Master uses PostgreSQL with Prisma ORM. This document describes the complete schema.
 
-## Diagrama ER
+## ER Diagram
 
 ```
 ┌──────────────┐
 │     User     │
 └──────────────┘
        │
-       │ (no relación directa, pero auth context)
+       │ (no direct relation, but auth context)
        │
        ▼
 ┌──────────────┐       ┌──────────────┐
@@ -31,56 +31,57 @@ QA Master utiliza PostgreSQL con Prisma ORM. Este documento describe el esquema 
 └──────────────┘       └──────────────┘
 ```
 
-## Modelos
+## Models
 
 ### User
 
-Usuarios del sistema.
+System users.
 
 ```prisma
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String   // Hasheado con bcrypt
+  password  String   // Hashed with bcrypt
   name      String?
-  image     String?  @db.Text // Base64 de imagen de perfil
+  image     String?  @db.Text // Base64 profile image
   language  String   @default("es") // es, en, pt
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 ```
 
-**Campos clave**:
-- `password`: Hasheado con bcrypt (10 rounds)
-- `image`: Almacenado como Base64 en Text
-- `language`: Idioma preferido del usuario
+**Key Fields**:
+- `password`: Hashed with bcrypt (10 rounds)
+- `image`: Stored as Base64 in Text
+- `language`: User preferred language
 
 ### Project
 
-Proyectos de testing.
+Testing projects.
 
 ```prisma
 model Project {
   id          String      @id @default(cuid())
   name        String
-  baseUrl     String      // URL de la aplicación a testear
+  baseUrl     String      // Application URL to test
   description String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   stories     UserStory[]
   testRuns    TestRun[]
   features    Feature[]
+  githubRepo  String?     // Format: "owner/repo"
 }
 ```
 
-**Relaciones**:
-- `stories`: Historias del proyecto
-- `testRuns`: Ejecuciones de tests
-- `features`: Funcionalidades del proyecto
+**Relationships**:
+- `stories`: Project stories
+- `testRuns`: Test executions
+- `features`: Project features
 
 ### Feature
 
-Funcionalidades/épicas para organizar historias.
+Features/Epics to organize stories.
 
 ```prisma
 model Feature {
@@ -89,46 +90,46 @@ model Feature {
   projectId   String
   project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userStories UserStory[]
-  order       Int         @default(0) // Para ordenamiento drag & drop
+  order       Int         @default(0) // For drag & drop ordering
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
 ```
 
-**Campos clave**:
-- `order`: Posición en el tablero (0, 1, 2, ...)
-- `onDelete: Cascade`: Al eliminar proyecto, se eliminan features
+**Key Fields**:
+- `order`: Position on the board (0, 1, 2, ...)
+- `onDelete: Cascade`: When project is deleted, features are deleted
 
 ### UserStory
 
-Historias de usuario a testear.
+User stories to test.
 
 ```prisma
 model UserStory {
   id                 String       @id @default(cuid())
   title              String
-  acceptanceCriteria String       // Criterios de aceptación
+  acceptanceCriteria String       // Criteria evaluated by AI
   status             String       @default("PENDING") // PENDING, COMPLETED
   projectId          String
   project            Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  featureId          String?      // Opcional, puede estar sin feature
+  featureId          String?      // Optional, can be uncategorized
   feature            Feature?     @relation(fields: [featureId], references: [id])
   testResults        TestResult[]
-  order              Int          @default(0) // Para ordenamiento
+  order              Int          @default(0) // For ordering
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }
 ```
 
-**Campos clave**:
-- `acceptanceCriteria`: Texto que la IA evalúa
-- `status`: Se actualiza a COMPLETED cuando pasa un test
-- `featureId`: Nullable, permite historias sin categorizar
-- `order`: Posición dentro de su feature
+**Key Fields**:
+- `acceptanceCriteria`: Text evaluated by AI
+- `status`: Updates to COMPLETED when test passes
+- `featureId`: Nullable, allows uncategorized stories
+- `order`: Position within its feature
 
 ### TestRun
 
-Ejecución de tests (puede contener múltiples resultados).
+Test execution (can contain multiple results).
 
 ```prisma
 model TestRun {
@@ -142,14 +143,14 @@ model TestRun {
 }
 ```
 
-**Estados**:
-- `RUNNING`: Test en progreso
-- `COMPLETED`: Terminado exitosamente
-- `FAILED`: Falló la ejecución
+**Statuses**:
+- `RUNNING`: Test in progress
+- `COMPLETED`: Finished successfully
+- `FAILED`: Execution failed
 
 ### TestResult
 
-Resultado individual de una historia.
+Individual result of a story.
 
 ```prisma
 model TestResult {
@@ -157,56 +158,56 @@ model TestResult {
   runId      String
   storyId    String
   status     String    // PASS, FAIL, SKIPPED
-  logs       String?   // Logs y razonamiento de la IA
-  screenshot String?   // Base64 de captura de pantalla
+  logs       String?   // Logs and AI reasoning
+  screenshot String?   // Base64 screenshot
   createdAt  DateTime  @default(now())
   testRun    TestRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
   story      UserStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
 }
 ```
 
-**Campos clave**:
-- `logs`: Incluye razonamiento de la IA
-- `screenshot`: Captura en Base64
+**Key Fields**:
+- `logs`: Includes AI reasoning
+- `screenshot`: Base64 capture
 - `status`: PASS/FAIL/SKIPPED
 
-## Índices y Optimizaciones
+## Indexes and Optimizations
 
-### Índices Automáticos
+### Automatic Indexes
 
-Prisma crea índices automáticamente para:
-- Campos `@id`
-- Campos `@unique`
-- Claves foráneas
+Prisma creates indexes automatically for:
+- `@id` fields
+- `@unique` fields
+- Foreign keys
 
-### Índices Recomendados (Futuro)
+### Recommended Indexes (Future)
 
 ```prisma
-@@index([projectId, createdAt]) // Para queries de historial
-@@index([storyId, createdAt])   // Para historial de historia
+@@index([projectId, createdAt]) // For history queries
+@@index([storyId, createdAt])   // For story history
 ```
 
-## Migraciones
+## Migrations
 
-### Aplicar Cambios
+### Apply Changes
 
 ```bash
-# Desarrollo (push directo)
+# Development (direct push)
 npx prisma db push
 
-# Producción (con migraciones)
+# Production (with migrations)
 npx prisma migrate deploy
 ```
 
-### Ver Base de Datos
+### View Database
 
 ```bash
 npx prisma studio
 ```
 
-## Queries Comunes
+## Common Queries
 
-### Proyecto con Todas sus Relaciones
+### Project with All Relationships
 
 ```typescript
 const project = await prisma.project.findUnique({
@@ -227,7 +228,7 @@ const project = await prisma.project.findUnique({
 });
 ```
 
-### Historial de una Historia
+### Story History
 
 ```typescript
 const history = await prisma.testResult.findMany({
@@ -237,7 +238,7 @@ const history = await prisma.testResult.findMany({
 });
 ```
 
-## Próximos Pasos
+## Next Steps
 
-- [Arquitectura](Architecture)
+- [Architecture](Architecture)
 - [API Reference](API-Reference)

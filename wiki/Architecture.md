@@ -1,16 +1,16 @@
-# Arquitectura del Sistema
+# System Architecture
 
-QA Master está construido con una arquitectura moderna de Next.js 16 utilizando el App Router y Server Components.
+QA Master is built with a modern Next.js 16 architecture using the App Router and Server Components.
 
-## Diagrama de Arquitectura
+## Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Cliente (Browser)                     │
+│                        Client (Browser)                      │
 │  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐   │
 │  │  React UI   │  │  Drag & Drop │  │  i18n (ES/EN/PT) │   │
 │  └─────────────┘  └──────────────┘  └──────────────────┘   │
-└────────────────────────────┬────────────────────────────────┘
+13: └────────────────────────────┬────────────────────────────────┘
                              │
                     ┌────────▼────────┐
                     │   Next.js 16    │
@@ -38,156 +38,156 @@ QA Master está construido con una arquitectura moderna de Next.js 16 utilizando
 └────────────────┘  └─────────────────┘  └────────────────┘
 ```
 
-## Capas de la Aplicación
+## Application Layers
 
-### 1. Capa de Presentación (UI)
+### 1. Presentation Layer (UI)
 
-**Ubicación**: `src/components/`, `src/app/(dashboard)/`
+**Location**: `src/components/`, `src/app/(dashboard)/`
 
-- **Componentes React**: Interfaz de usuario moderna con TailwindCSS
-- **Client Components**: Interactividad (formularios, drag & drop, modales)
-- **Server Components**: Renderizado del lado del servidor para mejor rendimiento
-- **Internacionalización**: Sistema de diccionarios multiidioma
+- **React Components**: Modern UI with TailwindCSS
+- **Client Components**: Interactivity (forms, drag & drop, modals)
+- **Server Components**: Server-side rendering for better performance
+- **Internationalization**: Multi-language dictionary system
 
-**Tecnologías**:
+**Technologies**:
 - React 19 (Server Components)
 - TailwindCSS 4
 - @dnd-kit (Drag & Drop)
-- Lucide React (Iconos)
+- Lucide React (Icons)
 
-### 2. Capa de Lógica de Negocio (Server Actions)
+### 2. Business Logic Layer (Server Actions)
 
-**Ubicación**: `src/app/actions/`
+**Location**: `src/app/actions/`
 
-Server Actions de Next.js que manejan:
-- Autenticación (`auth.ts`)
-- Gestión de proyectos (`projects.ts`)
-- Historias de usuario (`stories.ts`)
-- Funcionalidades (`features.ts`)
+Next.js Server Actions handling:
+- Authentication (`auth.ts`)
+- Project management (`projects.ts`)
+- User stories (`stories.ts`)
+- Features (`features.ts`)
 - Testing (`testing.ts`)
-- Perfil de usuario (`profile.ts`)
+- User profile (`profile.ts`)
 
-**Ventajas**:
+**Advantages**:
 - Type-safe (TypeScript)
-- No necesita API REST separada
+- No separate REST API needed
 - Optimistic updates
-- Revalidación automática
+- Automatic revalidation
 
-### 3. Capa de Datos (Prisma ORM)
+### 3. Data Layer (Prisma ORM)
 
-**Ubicación**: `prisma/schema.prisma`, `src/lib/prisma.ts`
+**Location**: `prisma/schema.prisma`, `src/lib/prisma.ts`
 
-**Modelos principales**:
-- `User`: Usuarios del sistema
-- `Project`: Proyectos de testing
-- `Feature`: Funcionalidades/épicas
-- `UserStory`: Historias de usuario
-- `TestRun`: Ejecuciones de tests
-- `TestResult`: Resultados individuales
+**Main Models**:
+- `User`: System users
+- `Project`: Testing projects
+- `Feature`: Features/Epics
+- `UserStory`: User stories
+- `TestRun`: Test executions
+- `TestResult`: Individual results
 
-**Características**:
+**Features**:
 - Type-safe queries
-- Migraciones automáticas
-- Relaciones bien definidas
+- Automatic migrations
+- Well-defined relationships
 - Cascade deletes
 
-### 4. Capa de Testing con IA
+### 4. AI Testing Layer
 
-**Ubicación**: `src/lib/ai-testing.ts`
+**Location**: `src/lib/ai-testing.ts`
 
-**Flujo de Testing**:
-
-```
-1. Recibir historia de usuario
-2. Abrir navegador (Playwright)
-3. Navegar a URL del proyecto
-4. Capturar estado inicial
-5. Enviar a GPT-4 para análisis
-6. IA decide acciones (click, fill, etc.)
-7. Ejecutar acciones en navegador
-8. Repetir hasta evaluación final
-9. Capturar screenshot
-10. Generar reporte con razonamiento
-```
-
-**Componentes**:
-- **Playwright**: Automatización de navegador
-- **OpenAI GPT-4**: Evaluación inteligente
-- **Loop Agentico**: La IA puede interactuar con la página
-
-## Flujo de Datos
-
-### Autenticación
+**Testing Flow**:
 
 ```
-Usuario → Login Form → Server Action (auth.ts)
+1. Receive user story
+2. Open browser (Playwright)
+3. Navigate to project URL
+4. Capture initial state
+5. Send to GPT-4 for analysis
+6. AI decides actions (click, fill, etc.)
+7. Execute actions in browser
+8. Repeat until final evaluation
+9. Capture screenshot
+10. Generate report with reasoning
+```
+
+**Components**:
+- **Playwright**: Browser automation
+- **OpenAI GPT-4**: Intelligent evaluation
+- **Agentic Loop**: AI can interact with the page
+
+## Data Flow
+
+### Authentication
+
+```
+User → Login Form → Server Action (auth.ts)
   → bcrypt.compare → JWT Token → Cookie
-  → Middleware verifica en cada request
+  → Middleware verifies on each request
 ```
 
-### Ejecución de Test
+### Test Execution
 
 ```
-Usuario → Click "Play" → Server Action (testing.ts)
-  → Create TestRun → Playwright abre navegador
-  → AI Testing Loop → Captura screenshot
+User → Click "Play" → Server Action (testing.ts)
+  → Create TestRun → Playwright opens browser
+  → AI Testing Loop → Capture screenshot
   → Save TestResult → Revalidate UI
 ```
 
 ### Drag & Drop
 
 ```
-Usuario arrastra → DndContext (client)
+User drags → DndContext (client)
   → onDragEnd → Optimistic update (local state)
   → Server Action (reorderStories/reorderFeatures)
   → Update DB → Revalidate path
 ```
 
-## Seguridad
+## Security
 
-### Autenticación
-- Contraseñas hasheadas con bcrypt (10 rounds)
-- JWT tokens firmados con secret
+### Authentication
+- Passwords hashed with bcrypt (10 rounds)
+- JWT tokens signed with secret
 - HttpOnly cookies
 
-### Autorización
-- Middleware verifica token en rutas protegidas
-- Server Actions validan usuario autenticado
-- Queries filtran por usuario actual
+### Authorization
+- Middleware verifies token on protected routes
+- Server Actions validate authenticated user
+- Queries filter by current user
 
-### Validación
-- Validación en cliente (formularios)
-- Validación en servidor (Server Actions)
+### Validation
+- Client-side validation (forms)
+- Server-side validation (Server Actions)
 - Prisma schema constraints
 
-## Rendimiento
+## Performance
 
-### Optimizaciones
-- Server Components por defecto (menos JS al cliente)
+### Optimizations
+- Server Components by default (less JS to client)
 - Streaming SSR
 - Optimistic updates
-- Revalidación granular con `revalidatePath`
-- Imágenes optimizadas con Next.js Image
+- Granular revalidation with `revalidatePath`
+- Optimized images with Next.js Image
 
 ### Caching
-- Next.js cache automático
+- Next.js automatic cache
 - Prisma connection pooling
-- Static generation donde es posible
+- Static generation where possible
 
-## Escalabilidad
+## Scalability
 
 ### Horizontal
-- Stateless (JWT en cookies)
+- Stateless (JWT in cookies)
 - Database connection pooling
-- Puede desplegarse en múltiples instancias
+- Can be deployed on multiple instances
 
 ### Vertical
-- Playwright puede ejecutarse en paralelo
-- Background jobs para tests largos (futuro)
-- Queue system para tests (futuro)
+- Playwright can run in parallel
+- Background jobs for long tests (future)
+- Queue system for tests (future)
 
-## Próximos Pasos
+## Next Steps
 
-- [Estructura del Proyecto](Project-Structure)
-- [Base de Datos](Database-Schema)
+- [Project Structure](Project-Structure)
+- [Database Schema](Database-Schema)
 - [API Reference](API-Reference)

@@ -1,108 +1,108 @@
-# Gestión de Proyectos
+# Project Management
 
-Los proyectos son el contenedor principal en QA Master. Cada proyecto representa una aplicación web que deseas testear.
+Projects are the main container in QA Master. Each project represents a web application you want to test.
 
-## Crear un Proyecto
+## Create a Project
 
-1. **Navega al Dashboard**
-   - Haz click en "Projects" en el sidebar
-   - Click en "Nuevo Proyecto"
+1. **Navigate to Dashboard**
+   - Click on "Projects" in the sidebar
+   - Click on "New Project"
 
-2. **Completa el Formulario**
-   - **Nombre**: Nombre descriptivo de tu proyecto
-   - **URL Base**: URL de tu aplicación (ej: `https://mi-app.com`)
-   - **Descripción** (opcional): Breve descripción del proyecto
+2. **Complete the Form**
+   - **Name**: Descriptive name of your project
+   - **Base URL**: URL of your application (e.g., `https://my-app.com`)
+   - **Description** (optional): Brief description of the project
 
-3. **Guardar**
-   - Click en "Crear Proyecto"
+3. **Save**
+   - Click on "Create Project"
 
-## Estructura de un Proyecto
+## Project Structure
 
 ```
-Proyecto
-├── Funcionalidades (Features)
+Project
+├── Features
 │   ├── Feature 1
-│   │   ├── Historia 1
-│   │   ├── Historia 2
-│   │   └── Historia 3
+│   │   ├── Story 1
+│   │   ├── Story 2
+│   │   └── Story 3
 │   └── Feature 2
-│       ├── Historia 4
-│       └── Historia 5
-└── Sin Categoría
-    └── Historias sin feature asignada
+│       ├── Story 4
+│       └── Story 5
+└── Uncategorized
+    └── Stories without assigned feature
 ```
 
-## Funcionalidades (Features)
+## Features
 
-Las funcionalidades te permiten organizar historias relacionadas.
+Features allow you to organize related stories.
 
-### Crear una Funcionalidad
+### Create a Feature
 
-1. En la vista del proyecto, usa el formulario lateral
-2. Ingresa el nombre de la funcionalidad
-3. Click en "Agregar Funcionalidad"
+1. In the project view, use the sidebar form
+2. Enter the feature name
+3. Click on "Add Feature"
 
-### Reordenar Funcionalidades
+### Reorder Features
 
-- Usa el icono de **agarre** (⋮⋮) a la izquierda del nombre
-- Arrastra hacia arriba o abajo
-- El orden se guarda automáticamente
+- Use the **grip** icon (⋮⋮) to the left of the name
+- Drag up or down
+- Order is saved automatically
 
-### Renombrar Funcionalidad
+### Rename Feature
 
-- Haz click en el icono de **lápiz** junto al nombre
-- Edita el nombre
-- Presiona Enter o click en ✓
+- Click the **pencil** icon next to the name
+- Edit the name
+- Press Enter or click ✓
 
-### Eliminar Funcionalidad
+### Delete Feature
 
-- Click en el icono de **papelera**
-- Confirma la eliminación
-- **Nota**: Las historias dentro se moverán a "Sin Categoría"
+- Click the **trash** icon
+- Confirm deletion
+- **Note**: Stories inside will move to "Uncategorized"
 
-## Editar Proyecto
+## Edit Project
 
-1. En la vista del proyecto, click en el icono de lápiz junto al nombre
-2. Modifica los campos necesarios
-3. Click en "Actualizar Proyecto"
+1. In the project view, click the pencil icon next to the name
+2. Modify necessary fields
+3. Click on "Update Project"
 
-## Eliminar Proyecto
+## Delete Project
 
-⚠️ **Advertencia**: Esta acción es irreversible
+⚠️ **Warning**: This action is irreversible
 
-1. Ve a la lista de proyectos
-2. Click en el icono de papelera del proyecto
-3. Confirma la eliminación
-4. Se eliminarán todas las funcionalidades, historias y resultados de tests
+1. Go to the project list
+2. Click the trash icon on the project
+3. Confirm deletion
+4. All features, stories, and test results will be deleted
 
-## Mejores Prácticas
+## Best Practices
 
-### Nombrar Proyectos
+### Naming Projects
 
-✅ **Bueno**:
+✅ **Good**:
 - "E-commerce Frontend"
-- "API de Pagos v2"
-- "Dashboard Admin"
+- "Payments API v2"
+- "Admin Dashboard"
 
-❌ **Evitar**:
-- "Proyecto 1"
+❌ **Avoid**:
+- "Project 1"
 - "Test"
-- "Mi App"
+- "My App"
 
-### Organizar con Funcionalidades
+### Organizing with Features
 
-Agrupa historias por:
-- **Módulo**: Login, Registro, Checkout
-- **Épica**: Gestión de Usuarios, Reportes
+Group stories by:
+- **Module**: Login, Registration, Checkout
+- **Epic**: User Management, Reports
 - **Sprint**: Sprint 1, Sprint 2
 
-### URL Base
+### Base URL
 
-- Usa la URL de producción o staging
-- Asegúrate de que sea accesible
-- Incluye el protocolo (`https://`)
+- Use production or staging URL
+- Ensure it is accessible
+- Include the protocol (`https://`)
 
-## Próximos Pasos
+## Next Steps
 
-- [Historias de Usuario](User-Stories)
-- [Ejecutar Tests](Running-Tests)
+- [User Stories](User-Stories)
+- [Running Tests](Running-Tests)
