@@ -48,6 +48,8 @@ export async function updateFeature(featureId: string, name: string, projectId: 
         data: { name },
     });
 
+    await logActivity(projectId, 'UPDATE', 'FEATURE', name);
+
     revalidatePath(`/projects/${projectId}`);
 }
 

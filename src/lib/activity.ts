@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 
-export type ActivityAction = 'CREATE' | 'DELETE' | 'EXECUTE' | 'VIEW_REPORT';
+export type ActivityAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'EXECUTE' | 'VIEW_REPORT';
 export type EntityType = 'STORY' | 'FEATURE' | 'PROJECT';
 
 export async function logActivity(

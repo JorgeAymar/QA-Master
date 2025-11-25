@@ -104,5 +104,7 @@ export async function updateStory(storyId: string, projectId: string, formData: 
         },
     });
 
+    await logActivity(projectId, 'UPDATE', 'STORY', title);
+
     revalidatePath(`/projects/${projectId}`);
 }

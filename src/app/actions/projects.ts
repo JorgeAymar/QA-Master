@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { logActivity } from '@/lib/activity';
+
 export async function getProjects() {
     return await prisma.project.findMany({
         orderBy: [
@@ -45,7 +47,7 @@ export async function createProject(formData: FormData) {
         throw new Error('Name and Base URL are required');
     }
 
-    await prisma.project.create({
+    const project = await prisma.project.create({
         data: {
             name,
             baseUrl,
@@ -53,6 +55,8 @@ export async function createProject(formData: FormData) {
             githubRepo: githubRepo || null,
         },
     });
+
+    await logActivity(project.id, 'CREATE', 'PROJECT', project.name);
 
     revalidatePath('/projects');
     redirect('/projects');
@@ -68,7 +72,7 @@ export async function updateProject(id: string, formData: FormData) {
         throw new Error('Name and Base URL are required');
     }
 
-    await prisma.project.update({
+    const project = await prisma.project.update({
         where: { id },
         data: {
             name,
@@ -77,6 +81,8 @@ export async function updateProject(id: string, formData: FormData) {
             githubRepo: githubRepo || null,
         },
     });
+
+    await logActivity(project.id, 'UPDATE', 'PROJECT', project.name);
 
     revalidatePath(`/projects/${id}`);
     revalidatePath('/projects');
