@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { runStoryTest } from '@/app/actions/testing';
 import { deleteStory } from '@/app/actions/stories';
-import { CheckCircle, XCircle, Clock, Trash2, Play, FileText, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Trash2, Play, FileText, Pencil, ChevronDown, ChevronUp, Github } from 'lucide-react';
 import { useState } from 'react';
 import { Dictionary } from '@/lib/dictionaries';
 
@@ -25,14 +25,31 @@ interface StoryCardProps {
     story: StoryWithResults;
     projectId: string;
     dict: Dictionary;
+    githubRepo?: string | null;
 }
 
 import { StoryHistoryModal } from './StoryHistoryModal';
 
-export function StoryCard({ story, projectId, dict }: StoryCardProps) {
+export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps) {
     const lastResult = story.testResults[0];
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+    const getGithubIssueUrl = () => {
+        if (!githubRepo || !lastResult || lastResult.status !== 'FAIL') return null;
+
+        const title = encodeURIComponent(`[Bug] ${story.title}`);
+        const body = encodeURIComponent(
+            `**Story:** ${story.title}\n\n` +
+            `**Acceptance Criteria:**\n${story.acceptanceCriteria}\n\n` +
+            `**Failure Logs:**\n\`\`\`\n${lastResult.logs || 'No logs available'}\n\`\`\`\n\n` +
+            `**Context:**\nAutomated test failure detected by QA Master.`
+        );
+
+        return `https://github.com/${githubRepo}/issues/new?title=${title}&body=${body}`;
+    };
+
+    const githubUrl = getGithubIssueUrl();
 
     return (
         <>
@@ -112,6 +129,18 @@ export function StoryCard({ story, projectId, dict }: StoryCardProps) {
                             <FileText className="h-3.5 w-3.5" />
                             {dict.project.report}
                         </Link>
+                        {githubUrl && (
+                            <a
+                                href={githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
+                                title="Create GitHub Issue"
+                            >
+                                <Github className="h-3.5 w-3.5" />
+                                Issue
+                            </a>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-1">

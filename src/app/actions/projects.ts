@@ -19,6 +19,7 @@ export async function createProject(formData: FormData) {
     const name = formData.get('name') as string;
     const baseUrl = formData.get('baseUrl') as string;
     const description = formData.get('description') as string;
+    const githubRepo = formData.get('githubRepo') as string;
 
     if (!name || !baseUrl) {
         throw new Error('Name and Base URL are required');
@@ -29,6 +30,7 @@ export async function createProject(formData: FormData) {
             name,
             baseUrl,
             description,
+            githubRepo: githubRepo || null,
         },
     });
 
@@ -40,6 +42,7 @@ export async function updateProject(id: string, formData: FormData) {
     const name = formData.get('name') as string;
     const baseUrl = formData.get('baseUrl') as string;
     const description = formData.get('description') as string;
+    const githubRepo = formData.get('githubRepo') as string;
 
     if (!name || !baseUrl) {
         throw new Error('Name and Base URL are required');
@@ -51,6 +54,7 @@ export async function updateProject(id: string, formData: FormData) {
             name,
             baseUrl,
             description,
+            githubRepo: githubRepo || null,
         },
     });
 

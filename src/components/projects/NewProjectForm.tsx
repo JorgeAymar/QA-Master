@@ -56,6 +56,22 @@ export function NewProjectForm({ dict }: { dict: Dictionary }) {
 
                     <div>
                         <label
+                            htmlFor="githubRepo"
+                            className="block text-sm font-medium text-slate-700"
+                        >
+                            GitHub Repository (Optional)
+                        </label>
+                        <input
+                            type="text"
+                            name="githubRepo"
+                            id="githubRepo"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="owner/repo (e.g. facebook/react)"
+                        />
+                    </div>
+
+                    <div>
+                        <label
                             htmlFor="description"
                             className="block text-sm font-medium text-slate-700"
                         >

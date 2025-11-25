@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getProjectStories } from '@/app/actions/stories';
 import { createFeature } from '@/app/actions/features';
 import { runTests } from '@/app/actions/testing';
-import { Plus, ArrowLeft, FolderPlus, Play, FileText, LayoutDashboard, CheckCircle2, Clock, AlertCircle, Pencil } from 'lucide-react';
+import { Plus, ArrowLeft, FolderPlus, Play, FileText, LayoutDashboard, CheckCircle2, Clock, AlertCircle, Pencil, Github } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { FeatureGroup } from '@/components/features/FeatureGroup';
 import { StoryCard } from '@/components/stories/StoryCard';
@@ -116,6 +116,37 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                     <Pencil className="h-3.5 w-3.5" />
                                 </Link>
                             </div>
+                            {project.githubRepo ? (
+                                <div className="flex items-center gap-2 group">
+                                    <a
+                                        href={`https://github.com/${project.githubRepo}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-slate-600 hover:text-slate-900 hover:underline flex items-center gap-1"
+                                    >
+                                        <Github className="h-3.5 w-3.5" />
+                                        {project.githubRepo}
+                                    </a>
+                                    <Link
+                                        href={`/projects/${project.id}/edit`}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
+                                        title={dict.common.edit}
+                                    >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Link
+                                        href={`/projects/${project.id}/edit`}
+                                        className="text-sm text-slate-400 hover:text-blue-600 flex items-center gap-1 transition-colors"
+                                    >
+                                        <Github className="h-3.5 w-3.5" />
+                                        <span>Add GitHub Repo</span>
+                                        <Pencil className="h-3 w-3 ml-1 opacity-50" />
+                                    </Link>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-3">
@@ -228,6 +259,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                             features={project.features}
                             projectId={project.id}
                             dict={dict}
+                            githubRepo={project.githubRepo}
                         />
                     </div>
                 </div>

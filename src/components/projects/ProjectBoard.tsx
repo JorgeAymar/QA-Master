@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, DragOverEvent, closestCorners, PointerSensor, useSensor, useSensors, defaultDropAnimationSideEffects, DropAnimation } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -37,6 +37,7 @@ interface ProjectBoardProps {
     features: Feature[];
     projectId: string;
     dict: Dictionary;
+    githubRepo?: string | null;
 }
 
 const dropAnimation: DropAnimation = {
@@ -49,11 +50,16 @@ const dropAnimation: DropAnimation = {
     }),
 };
 
-export function ProjectBoard({ initialStories, features: initialFeatures, projectId, dict }: ProjectBoardProps) {
+export function ProjectBoard({ initialStories, features: initialFeatures, projectId, dict, githubRepo }: ProjectBoardProps) {
     const [stories, setStories] = useState(initialStories.sort((a, b) => a.order - b.order));
     const [features, setFeatures] = useState(initialFeatures.sort((a, b) => a.order - b.order));
     const [activeStory, setActiveStory] = useState<StoryWithResults | null>(null);
     const [activeFeature, setActiveFeature] = useState<Feature | null>(null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -62,6 +68,10 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
             },
         })
     );
+
+    if (!mounted) {
+        return null;
+    }
 
     // Group stories by feature
     const storiesByFeature: Record<string, StoryWithResults[]> = {};
@@ -263,7 +273,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                             >
                                 <div className="grid grid-cols-1 gap-4 min-h-[60px]">
                                     {storiesByFeature[feature.id]?.map(story => (
-                                        <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} />
+                                        <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} />
                                     ))}
                                 </div>
                             </SortableContext>
@@ -288,7 +298,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                         >
                             <div className="grid grid-cols-1 gap-4 min-h-[60px]">
                                 {uncategorizedStories.map(story => (
-                                    <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} />
+                                    <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} />
                                 ))}
                             </div>
                         </SortableContext>
@@ -311,7 +321,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeStory ? (
                     <div className="opacity-80 rotate-2 scale-105 cursor-grabbing">
-                        <StoryCard story={activeStory} projectId={projectId} dict={dict} />
+                        <StoryCard story={activeStory} projectId={projectId} dict={dict} githubRepo={githubRepo} />
                     </div>
                 ) : activeFeature ? (
                     <div className="opacity-80 rotate-2 scale-105 cursor-grabbing">
@@ -325,7 +335,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
     );
 }
 
-function SortableStoryCard({ story, projectId, dict }: { story: StoryWithResults, projectId: string, dict: Dictionary }) {
+function SortableStoryCard({ story, projectId, dict, githubRepo }: { story: StoryWithResults, projectId: string, dict: Dictionary, githubRepo?: string | null }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: story.id,
     });
@@ -337,7 +347,7 @@ function SortableStoryCard({ story, projectId, dict }: { story: StoryWithResults
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes} className={isDragging ? 'opacity-30' : ''}>
-            <StoryCard story={story} projectId={projectId} dict={dict} />
+            <StoryCard story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} />
         </div>
     );
 }
