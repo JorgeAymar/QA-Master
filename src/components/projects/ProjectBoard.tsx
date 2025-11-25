@@ -274,24 +274,26 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                     ))}
                 </SortableContext>
 
-                <DroppableArea id="uncategorized" className="rounded-lg border border-slate-200 bg-white p-4">
-                    <div className="mb-4 flex items-center gap-2">
-                        <h3 className="text-lg font-semibold text-slate-900">{dict.project.uncategorized}</h3>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                            {uncategorizedStories.length} stories
-                        </span>
-                    </div>
-                    <SortableContext
-                        items={uncategorizedStories.map(s => s.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <div className="grid grid-cols-1 gap-4 min-h-[60px]">
-                            {uncategorizedStories.map(story => (
-                                <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} />
-                            ))}
+                {uncategorizedStories.length > 0 && (
+                    <DroppableArea id="uncategorized" className="rounded-lg border border-slate-200 bg-white p-4">
+                        <div className="mb-4 flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-slate-900">{dict.project.uncategorized}</h3>
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                                {uncategorizedStories.length} stories
+                            </span>
                         </div>
-                    </SortableContext>
-                </DroppableArea>
+                        <SortableContext
+                            items={uncategorizedStories.map(s => s.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <div className="grid grid-cols-1 gap-4 min-h-[60px]">
+                                {uncategorizedStories.map(story => (
+                                    <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} />
+                                ))}
+                            </div>
+                        </SortableContext>
+                    </DroppableArea>
+                )}
 
                 {stories.length === 0 && features.length === 0 && (
                     <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-16 text-center">
