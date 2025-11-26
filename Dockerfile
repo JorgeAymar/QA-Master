@@ -69,6 +69,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
+# Install Prisma CLI for running migrations
+RUN npm install -g prisma@6.19.0
+
 # Install Playwright Chromium browser
 RUN npx playwright install chromium
 
