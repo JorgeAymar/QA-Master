@@ -7,6 +7,7 @@ import { ChevronDown, ChevronRight, Plus, MoreVertical, Pencil, Trash2, GripVert
 import Link from 'next/link';
 import { Dictionary } from '@/lib/dictionaries';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { format } from 'date-fns';
 
 interface Feature {
     id: string;
@@ -19,20 +20,25 @@ interface FeatureGroupProps {
         name: string;
         createdBy?: { name: string | null } | null;
         updatedBy?: { name: string | null } | null;
+        createdAt: Date;
+        updatedAt: Date;
     };
     projectId: string;
     storyCount: number;
     children: React.ReactNode;
     dict: Dictionary;
     dragHandleProps?: any;
+    userRole?: string;
 }
 
-export function FeatureGroup({ feature, projectId, storyCount, children, dict, dragHandleProps }: FeatureGroupProps) {
+export function FeatureGroup({ feature, projectId, storyCount, children, dict, dragHandleProps, userRole = 'READ' }: FeatureGroupProps) {
     const router = useRouter();
     const [isExpanded, setIsExpanded] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [name, setName] = useState(feature.name);
+
+    const canEdit = userRole === 'ADMIN' || userRole === 'FULL' || userRole === 'OWNER';
 
     async function handleUpdate() {
         if (name.trim() === feature.name) {
@@ -51,7 +57,7 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
         <div className="rounded-xl border border-slate-200 bg-slate-50/50 overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
                 <div className="flex items-center gap-3 flex-1">
-                    {dragHandleProps && (
+                    {dragHandleProps && canEdit && (
                         <button {...dragHandleProps} className="cursor-grab hover:bg-slate-100 p-1 rounded text-slate-400 hover:text-slate-600">
                             <GripVertical className="h-4 w-4" />
                         </button>
@@ -103,30 +109,34 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
                                         {storyCount} {dict.project.stories}
                                     </span>
                                 </div>
-                                <div className="flex gap-2 text-[10px] text-slate-400">
-                                    {feature.createdBy?.name && <span>Created by {feature.createdBy.name}</span>}
-                                    {feature.updatedBy?.name && <span>• Updated by {feature.updatedBy.name}</span>}
+                                <div className="flex flex-col gap-1 text-[10px] text-slate-400">
+                                    {feature.createdBy?.name && <span>{dict.common.createdBy} {feature.createdBy.name} {dict.common.on} {format(new Date(feature.createdAt), 'dd/MM/yyyy HH:mm')}</span>}
+                                    {feature.updatedBy?.name && <span>{dict.common.updatedBy} {feature.updatedBy.name} {dict.common.on} {format(new Date(feature.updatedAt), 'dd/MM/yyyy HH:mm')}</span>}
                                 </div>
                             </div>
-                            <Link
-                                href={`/projects/${projectId}/stories/new?featureId=${feature.id}`}
-                                className="ml-2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600"
-                                title={dict.project.newStory}
-                            >
-                                <Plus className="h-4 w-4" />
-                            </Link>
-                            <button
-                                onClick={() => setIsEditing(true)}
-                                className="text-slate-400 hover:text-blue-600"
-                                title={dict.project.renameFeature}
-                            >
-                                <Pencil className="h-4 w-4" />
-                            </button>
+                            {canEdit && (
+                                <>
+                                    <Link
+                                        href={`/projects/${projectId}/stories/new?featureId=${feature.id}`}
+                                        className="ml-2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600"
+                                        title={dict.project.newStory}
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                    </Link>
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="text-slate-400 hover:text-blue-600"
+                                        title={dict.project.renameFeature}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </button>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
 
-                {!isEditing && (
+                {!isEditing && canEdit && (
                     <button
                         onClick={handleDelete}
                         className="text-slate-400 hover:text-red-500"

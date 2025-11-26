@@ -3,7 +3,7 @@ import { getProjects } from '@/app/actions/projects';
 import { Plus, Globe, FileText, PlayCircle, Github } from 'lucide-react';
 import { ProjectGithubLink } from '@/components/projects/ProjectGithubLink';
 import { DraggableProjectList } from '@/components/projects/DraggableProjectList';
-import { getUserLanguage } from '@/lib/session';
+import { getUserLanguage, verifySession } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
 // Force dynamic rendering - this page needs database access
@@ -16,10 +16,14 @@ interface ProjectWithCounts {
     baseUrl: string;
     githubRepo: string | null;
     createdAt: Date;
+    updatedAt: Date;
     _count: {
         stories: number;
         testRuns: number;
     };
+    createdById: string | null;
+    createdBy?: { name: string | null } | null;
+    updatedBy?: { name: string | null } | null;
 }
 
 export default async function ProjectsPage() {
@@ -27,6 +31,7 @@ export default async function ProjectsPage() {
     console.log('Projects data:', JSON.stringify(projects, null, 2));
     const lang = await getUserLanguage();
     const dict = getDictionary(lang);
+    const session = await verifySession();
 
     return (
         <div className="space-y-6">
@@ -41,7 +46,7 @@ export default async function ProjectsPage() {
                 </Link>
             </div>
 
-            <DraggableProjectList projects={projects} dict={dict} />
+            <DraggableProjectList projects={projects} dict={dict} currentUserId={session.userId} />
         </div>
     );
 }

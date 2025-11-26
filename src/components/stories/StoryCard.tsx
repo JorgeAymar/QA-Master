@@ -3,17 +3,24 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { runStoryTest } from '@/app/actions/testing';
-import { deleteStory } from '@/app/actions/stories';
-import { CheckCircle, XCircle, Clock, Trash2, Play, FileText, Pencil, ChevronDown, ChevronUp, Github } from 'lucide-react';
+import { deleteStory, updateStory } from '@/app/actions/stories';
+import { CheckCircle, XCircle, Clock, Trash2, Play, FileText, Pencil, ChevronDown, ChevronUp, Github, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { Dictionary } from '@/lib/dictionaries';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { StoryHistoryModal } from './StoryHistoryModal';
 import { useTestExecution } from '@/context/TestExecutionContext';
+import { format } from 'date-fns';
 
 interface TestResult {
     status: string;
     logs: string | null;
+    createdAt: Date;
+    testRun?: {
+        user?: {
+            name: string | null;
+        } | null;
+    } | null;
 }
 
 interface StoryWithResults {
@@ -26,6 +33,8 @@ interface StoryWithResults {
     documentUrl: string | null;
     createdBy?: { name: string | null } | null;
     updatedBy?: { name: string | null } | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 interface StoryCardProps {
@@ -69,7 +78,9 @@ export function StoryCard({ story, projectId, dict, githubRepo, userRole = 'READ
                 <div className="flex items-start justify-between gap-4">
                     <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-3">
-                            <span className={`inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full ${story.status === 'COMPLETED' ? 'bg-green-500' : 'bg-yellow-500'
+                            <span className={`inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full ${lastResult?.status === 'PASS' ? 'bg-green-500' :
+                                lastResult?.status === 'FAIL' ? 'bg-red-500' :
+                                    'bg-slate-400'
                                 }`} />
                             <h3 className="font-semibold text-slate-900 leading-tight">{story.title}</h3>
                         </div>
@@ -104,9 +115,15 @@ export function StoryCard({ story, projectId, dict, githubRepo, userRole = 'READ
                             </button>
                         )}
 
-                        <div className="flex gap-2 text-[10px] text-slate-400 mt-1">
-                            {story.createdBy?.name && <span>Created by {story.createdBy.name}</span>}
-                            {story.updatedBy?.name && <span>• Updated by {story.updatedBy.name}</span>}
+                        <div className="flex flex-col gap-1 text-[10px] text-slate-400 mt-1">
+                            {story.createdBy?.name && <span>{dict.common.createdBy} {story.createdBy.name} {dict.common.on} {format(new Date(story.createdAt), 'dd/MM/yyyy HH:mm')}</span>}
+                            {story.updatedBy?.name && <span>{dict.common.updatedBy} {story.updatedBy.name} {dict.common.on} {format(new Date(story.updatedAt), 'dd/MM/yyyy HH:mm')}</span>}
+                            {lastResult && (
+                                <span>
+                                    {dict.report.lastRun} {lastResult.testRun?.user?.name ? `${dict.common.by} ${lastResult.testRun.user.name} ` : ''}
+                                    {dict.common.on} {format(new Date(lastResult.createdAt), 'dd/MM/yyyy HH:mm')}
+                                </span>
+                            )}
                         </div>
                     </div>
 
@@ -125,7 +142,7 @@ export function StoryCard({ story, projectId, dict, githubRepo, userRole = 'READ
                                 ) : (
                                     <XCircle className="h-3.5 w-3.5" />
                                 )}
-                                {lastResult.status}
+                                {lastResult.status === 'PASS' ? dict.project.testPass : dict.project.testFail}
                             </button>
                         ) : (
                             <button
@@ -183,6 +200,40 @@ export function StoryCard({ story, projectId, dict, githubRepo, userRole = 'READ
                             >
                                 <Pencil className="h-4 w-4" />
                             </Link>
+                            <label className="cursor-pointer rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600" title="Import from text file">
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept=".txt,.md"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+
+                                        const reader = new FileReader();
+                                        reader.onload = async (event) => {
+                                            const text = event.target?.result as string;
+                                            if (text) {
+                                                const formData = new FormData();
+                                                formData.append('title', story.title);
+                                                // Append new text to existing acceptance criteria
+                                                const newCriteria = story.acceptanceCriteria
+                                                    ? `${story.acceptanceCriteria}\n\n${text}`
+                                                    : text;
+                                                formData.append('acceptanceCriteria', newCriteria);
+                                                if (story.featureId) formData.append('featureId', story.featureId);
+                                                if (story.documentUrl) formData.append('documentUrl', story.documentUrl);
+
+                                                await updateStory(story.id, projectId, formData);
+                                                router.refresh();
+                                            }
+                                        };
+                                        reader.readAsText(file);
+                                        // Reset input
+                                        e.target.value = '';
+                                    }}
+                                />
+                                <Upload className="h-4 w-4" />
+                            </label>
                             <button
                                 onClick={() => setIsDeleteModalOpen(true)}
                                 className="rounded-md p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"

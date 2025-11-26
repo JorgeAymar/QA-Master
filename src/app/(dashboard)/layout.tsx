@@ -18,13 +18,17 @@ export default async function DashboardLayout({
     // Fetch fresh role from database to handle role updates immediately
     const user = await prisma.user.findUnique({
         where: { id: session.userId },
-        select: { role: true }
+        select: {
+            role: true,
+            name: true,
+            email: true
+        }
     });
 
     return (
         <TestExecutionProvider>
             <div className="flex h-screen bg-slate-50">
-                <Sidebar dict={dict} role={user?.role} />
+                <Sidebar dict={dict} user={user} />
                 <div className="flex flex-1 flex-col overflow-hidden">
                     <Header dict={dict} />
                     <main className="flex-1 overflow-y-auto p-8">{children}</main>

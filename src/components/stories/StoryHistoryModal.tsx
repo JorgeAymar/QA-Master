@@ -70,7 +70,7 @@ export function StoryHistoryModal({ storyId, isOpen, onClose, dict }: StoryHisto
                                     )}
                                     <div>
                                         <p className={`font-medium ${result.status === 'PASS' ? 'text-green-700' : 'text-red-700'}`}>
-                                            {result.status}
+                                            {result.status === 'PASS' ? dict.project.testPass : dict.project.testFail}
                                         </p>
                                         <p className="text-xs text-slate-500">
                                             {new Date(result.createdAt).toLocaleString()}

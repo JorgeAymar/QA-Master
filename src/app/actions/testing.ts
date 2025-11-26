@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { logActivity } from '@/lib/activity';
 import { evaluateStoryWithAI } from '@/lib/ai-testing';
+import { verifySession } from '@/lib/session';
 
 export async function runTests(projectId: string) {
     const project = await prisma.project.findUnique({
@@ -13,10 +14,13 @@ export async function runTests(projectId: string) {
 
     if (!project) throw new Error('Project not found');
 
+    const session = await verifySession();
+
     // Create Test Run
     const testRun = await prisma.testRun.create({
         data: {
             projectId,
+            userId: session.userId,
             status: 'RUNNING',
         },
     });
@@ -35,6 +39,14 @@ export async function runTests(projectId: string) {
                     logs: result.logs,
                     screenshot: result.screenshot,
                 },
+            });
+
+            // Update Story Status
+            await prisma.userStory.update({
+                where: { id: story.id },
+                data: {
+                    status: result.status === 'PASS' ? 'COMPLETED' : 'FAILED'
+                }
             });
         }
 
@@ -73,10 +85,13 @@ export async function runStoryTest(projectId: string, storyId: string) {
 
     const story = project.stories[0];
 
+    const session = await verifySession();
+
     // Create Test Run
     const testRun = await prisma.testRun.create({
         data: {
             projectId,
+            userId: session.userId,
             status: 'RUNNING',
         },
     });
@@ -94,6 +109,14 @@ export async function runStoryTest(projectId: string, storyId: string) {
                 logs: result.logs,
                 screenshot: result.screenshot,
             },
+        });
+
+        // Update Story Status
+        await prisma.userStory.update({
+            where: { id: story.id },
+            data: {
+                status: result.status === 'PASS' ? 'COMPLETED' : 'FAILED'
+            }
         });
 
         await prisma.testRun.update({

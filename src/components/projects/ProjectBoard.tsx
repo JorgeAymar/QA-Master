@@ -14,6 +14,7 @@ import { LayoutDashboard } from 'lucide-react';
 interface TestResult {
     status: string;
     logs: string | null;
+    createdAt: Date;
 }
 
 interface Feature {
@@ -22,6 +23,8 @@ interface Feature {
     order: number;
     createdBy?: { name: string | null } | null;
     updatedBy?: { name: string | null } | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 interface StoryWithResults {
@@ -35,6 +38,8 @@ interface StoryWithResults {
     documentUrl: string | null;
     createdBy?: { name: string | null } | null;
     updatedBy?: { name: string | null } | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 interface ProjectBoardProps {
@@ -286,6 +291,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                             projectId={projectId}
                             storyCount={storiesByFeature[feature.id]?.length || 0}
                             dict={dict}
+                            userRole={userRole}
                         >
                             <SortableContext
                                 items={storiesByFeature[feature.id]?.map(s => s.id) || []}
@@ -373,9 +379,10 @@ function SortableStoryCard({ story, projectId, dict, githubRepo, userRole }: { s
     );
 }
 
-function SortableFeatureGroup({ id, children, ...props }: any) {
+function SortableFeatureGroup({ id, children, userRole, ...props }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: id,
+        disabled: userRole === 'READ' // Disable dragging if read-only
     });
 
     const style = {
@@ -389,7 +396,7 @@ function SortableFeatureGroup({ id, children, ...props }: any) {
     return (
         <div ref={setNodeRef} style={style} className={isDragging ? 'opacity-50' : ''}>
             <div ref={setDroppableNodeRef} className={`transition-colors ${isOver ? 'bg-blue-50/50 ring-2 ring-blue-200 rounded-lg' : ''}`}>
-                <FeatureGroup {...props} dragHandleProps={{ ...attributes, ...listeners }}>
+                <FeatureGroup {...props} dragHandleProps={{ ...attributes, ...listeners }} userRole={userRole}>
                     {children}
                 </FeatureGroup>
             </div>

@@ -48,7 +48,14 @@ export async function getProjectStories(projectId: string) {
         include: {
             testResults: {
                 orderBy: { createdAt: 'desc' },
-                take: 1
+                take: 1,
+                include: {
+                    testRun: {
+                        include: {
+                            user: { select: { name: true } }
+                        }
+                    }
+                }
             },
             feature: true,
             createdBy: { select: { name: true } },
@@ -169,6 +176,8 @@ export async function updateStory(storyId: string, projectId: string, formData: 
         return;
     }
 
+    const session = await verifySession();
+
     await prisma.userStory.update({
         where: { id: storyId },
         data: {
@@ -176,6 +185,8 @@ export async function updateStory(storyId: string, projectId: string, formData: 
             acceptanceCriteria,
             featureId: featureId || null,
             documentUrl: (formData.get('documentUrl') as string) || null,
+            updatedById: session.userId,
+            updatedAt: new Date(),
         },
     });
 

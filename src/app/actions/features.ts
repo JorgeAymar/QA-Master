@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { logActivity } from '@/lib/activity';
+import { verifySession } from '@/lib/session';
 
 // ...
 
@@ -21,8 +22,7 @@ export async function createFeature(projectId: string, formData: FormData) {
         orderBy: { order: 'desc' },
     });
 
-    // Placeholder for session, replace with actual session retrieval logic
-    const session = { userId: 'some-user-id' }; // This line is added to make the code syntactically correct based on the edit.
+    const session = await verifySession();
 
     await prisma.feature.create({
         data: {
@@ -57,9 +57,15 @@ export async function updateFeature(featureId: string, name: string, projectId: 
         return;
     }
 
+    const session = await verifySession();
+
     await prisma.feature.update({
         where: { id: featureId },
-        data: { name },
+        data: {
+            name,
+            updatedById: session.userId,
+            updatedAt: new Date()
+        },
     });
 
     await logActivity(projectId, 'UPDATE', 'FEATURE', name);

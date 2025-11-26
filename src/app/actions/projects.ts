@@ -59,7 +59,9 @@ export async function getProjects() {
             include: {
                 _count: {
                     select: { stories: true, testRuns: true }
-                }
+                },
+                createdBy: { select: { name: true } },
+                updatedBy: { select: { name: true } }
             }
         });
     }
@@ -80,7 +82,9 @@ export async function getProjects() {
         include: {
             _count: {
                 select: { stories: true, testRuns: true }
-            }
+            },
+            createdBy: { select: { name: true } },
+            updatedBy: { select: { name: true } }
         }
     });
 }
@@ -184,4 +188,238 @@ export async function updateProject(id: string, formData: FormData) {
     revalidatePath(`/projects/${id}`);
     revalidatePath('/projects');
     redirect(`/projects/${id}`);
+}
+
+export async function duplicateProject(projectId: string) {
+    const session = await verifySession();
+
+    const originalProject = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+            features: true,
+            stories: true,
+        }
+    });
+
+    if (!originalProject) {
+        throw new Error('Project not found');
+    }
+
+    // Create new project
+    const newProject = await prisma.project.create({
+        data: {
+            name: `Copy of ${originalProject.name}`,
+            description: originalProject.description,
+            baseUrl: originalProject.baseUrl,
+            githubRepo: originalProject.githubRepo,
+            createdById: session.userId,
+            updatedById: session.userId,
+            members: {
+                create: {
+                    userId: session.userId,
+                    role: 'OWNER'
+                }
+            }
+        }
+    });
+
+    // Map old feature IDs to new feature IDs
+    const featureMap = new Map<string, string>();
+
+    // Duplicate features
+    for (const feature of originalProject.features) {
+        const newFeature = await prisma.feature.create({
+            data: {
+                name: feature.name,
+                projectId: newProject.id,
+                order: feature.order,
+                createdById: session.userId,
+                updatedById: session.userId,
+            }
+        });
+        featureMap.set(feature.id, newFeature.id);
+    }
+
+    // Duplicate stories
+    for (const story of originalProject.stories) {
+        await prisma.userStory.create({
+            data: {
+                projectId: newProject.id,
+                title: story.title,
+                acceptanceCriteria: story.acceptanceCriteria,
+                status: 'PENDING', // Reset status
+                order: story.order,
+                documentUrl: story.documentUrl,
+                featureId: story.featureId ? featureMap.get(story.featureId) : null,
+                createdById: session.userId,
+                updatedById: session.userId,
+            }
+        });
+    }
+
+    await logActivity(newProject.id, 'CREATE', 'PROJECT', newProject.name);
+    revalidatePath('/projects');
+}
+
+export async function addProjectMember(projectId: string, email: string, role: 'READ' | 'FULL' = 'READ') {
+    const session = await verifySession();
+
+    // Check permissions (only OWNER or ADMIN can add members)
+    const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { role: true }
+    });
+
+    if (currentUser?.role !== 'ADMIN') {
+        const membership = await prisma.projectMember.findUnique({
+            where: {
+                projectId_userId: {
+                    projectId,
+                    userId: session.userId
+                }
+            }
+        });
+
+        if (membership?.role !== 'OWNER') {
+            throw new Error('Unauthorized');
+        }
+    }
+
+    const userToAdd = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    if (!userToAdd) {
+        throw new Error('User not found');
+    }
+
+    try {
+        await prisma.projectMember.create({
+            data: {
+                projectId,
+                userId: userToAdd.id,
+                role
+            }
+        });
+    } catch (error) {
+        // Ignore if already exists (or handle more gracefully)
+        console.error('Error adding member:', error);
+        throw new Error('User is already a member or could not be added');
+    }
+
+    revalidatePath('/projects');
+}
+
+export async function getProjectMembers(projectId: string) {
+    const session = await verifySession();
+
+    // Check if user is a member of the project
+    const membership = await prisma.projectMember.findUnique({
+        where: {
+            projectId_userId: {
+                projectId,
+                userId: session.userId
+            }
+        }
+    });
+
+    const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { role: true }
+    });
+
+    if (!membership && currentUser?.role !== 'ADMIN') {
+        throw new Error('Unauthorized');
+    }
+
+    return await prisma.projectMember.findMany({
+        where: { projectId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'asc'
+        }
+    });
+}
+
+export async function removeProjectMember(projectId: string, memberId: string) {
+    const session = await verifySession();
+    const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { role: true }
+    });
+
+    // Check if user is owner/admin
+    if (currentUser?.role !== 'ADMIN') {
+        const membership = await prisma.projectMember.findUnique({
+            where: {
+                projectId_userId: {
+                    projectId,
+                    userId: session.userId
+                }
+            }
+        });
+
+        if (membership?.role !== 'OWNER') {
+            throw new Error('Unauthorized');
+        }
+    }
+
+    // Get the member to be removed
+    const memberToRemove = await prisma.projectMember.findUnique({
+        where: { id: memberId },
+        select: { role: true }
+    });
+
+    // Prevent removing the owner
+    if (memberToRemove?.role === 'OWNER') {
+        throw new Error('Cannot remove the project owner');
+    }
+
+    await prisma.projectMember.delete({
+        where: { id: memberId }
+    });
+
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${projectId}`);
+}
+
+export async function deleteProject(projectId: string) {
+    const session = await verifySession();
+    const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { role: true }
+    });
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: { members: true }
+    });
+
+    if (!project) {
+        throw new Error('Project not found');
+    }
+
+    // Only OWNER or ADMIN can delete
+    const isOwner = project.members.some(m => m.userId === session.userId && m.role === 'OWNER');
+    const isAdmin = currentUser?.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
+        throw new Error('Unauthorized');
+    }
+
+    await prisma.project.delete({
+        where: { id: projectId }
+    });
+
+    await logActivity(projectId, 'DELETE', 'PROJECT', project.name);
+    revalidatePath('/projects');
 }

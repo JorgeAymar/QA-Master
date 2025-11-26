@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ProjectHeaderActions } from '@/components/projects/ProjectHeaderActions';
 import { prisma } from '@/lib/prisma';
 import { getProjectStories } from '@/app/actions/stories';
 import { createFeature } from '@/app/actions/features';
@@ -11,10 +12,12 @@ import { ProjectBoard } from '@/components/projects/ProjectBoard';
 import { ShareProjectModal } from '@/components/projects/ShareProjectModal';
 import { getUserLanguage, verifySession } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
+import { format } from 'date-fns';
 
 interface TestResult {
     status: string;
     logs: string | null;
+    createdAt: Date;
 }
 
 interface Feature {
@@ -32,6 +35,8 @@ interface StoryWithResults {
     order: number;
     documentUrl: string | null;
     feature?: Feature | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -101,11 +106,13 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
         }
     });
 
-    const completedStories = stories.filter((s) => s.status === 'COMPLETED').length;
-    const pendingStories = stories.filter((s) => s.status === 'PENDING').length;
-    const completionRate = stories.length > 0 ? Math.round((completedStories / stories.length) * 100) : 0;
+    const passedStories = stories.filter((s) => s.testResults[0]?.status === 'PASS').length;
+    const failedStories = stories.filter((s) => s.testResults[0]?.status === 'FAIL').length;
+    const untestedStories = stories.filter((s) => !s.testResults[0]).length;
+    const passedRate = stories.length > 0 ? Math.round((passedStories / stories.length) * 100) : 0;
 
     const isOwner = userRole === 'OWNER' || userRole === 'ADMIN';
+    const canEdit = isOwner || userRole === 'FULL';
     const isShared = !isOwner;
 
     return (
@@ -126,49 +133,35 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <h1 className={`text-3xl font-bold tracking-tight ${isShared ? 'text-indigo-600' : 'text-slate-900'}`}>
                                     {project.name}
                                 </h1>
-                                {isOwner && (
-                                    <div className="flex items-center gap-2">
-                                        <Link
-                                            href={`/projects/${project.id}/edit`}
-                                            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 transition-colors"
-                                        >
-                                            {dict.common.edit}
-                                        </Link>
-                                        <ShareProjectModal
-                                            projectId={project.id}
-                                            members={project.members}
-                                            currentUserRole={userRole}
-                                            dict={dict}
-                                        />
-                                    </div>
-                                )}
+                                <ProjectHeaderActions
+                                    projectId={project.id}
+                                    projectName={project.name}
+                                    dict={dict}
+                                    canEdit={canEdit}
+                                    isOwner={isOwner}
+                                />
                                 {isShared && (
                                     <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600 border border-indigo-100">
-                                        Shared with you
+                                        {userRole === 'READ' ? dict.project.sharedWithYouView : dict.project.sharedWithYouEdit}
                                     </span>
                                 )}
                             </div>
-                            <div className="flex items-center gap-4 text-xs text-slate-500 mt-1">
-                                {project.createdBy?.name && (
-                                    <span>Created by {project.createdBy.name}</span>
-                                )}
-                                {project.updatedBy?.name && (
-                                    <span>Updated by {project.updatedBy.name}</span>
-                                )}
-                            </div>
+
                             {project.description && (
                                 <div className="flex items-center gap-2 group">
                                     <FileText className="h-4 w-4 text-slate-400" />
                                     <p className="text-slate-600 max-w-2xl text-sm leading-relaxed">
                                         {project.description}
                                     </p>
-                                    <Link
-                                        href={`/projects/${project.id}/edit`}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
-                                        title={dict.common.edit}
-                                    >
-                                        <Pencil className="h-3.5 w-3.5" />
-                                    </Link>
+                                    {canEdit && (
+                                        <Link
+                                            href={`/projects/${project.id}/edit`}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
+                                            title={dict.common.edit}
+                                        >
+                                            <Pencil className="h-3.5 w-3.5" />
+                                        </Link>
+                                    )}
                                 </div>
                             )}
                             <div className="flex items-center gap-2 group">
@@ -176,13 +169,15 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <a href={project.baseUrl} target="_blank" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
                                     {project.baseUrl}
                                 </a>
-                                <Link
-                                    href={`/projects/${project.id}/edit`}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
-                                    title={dict.common.edit}
-                                >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                </Link>
+                                {canEdit && (
+                                    <Link
+                                        href={`/projects/${project.id}/edit`}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
+                                        title={dict.common.edit}
+                                    >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                    </Link>
+                                )}
                             </div>
                             {project.githubRepo ? (
                                 <div className="flex items-center gap-2 group">
@@ -195,26 +190,35 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                         <Github className="h-3.5 w-3.5" />
                                         {dict.project.github} {project.githubRepo}
                                     </a>
-                                    <Link
-                                        href={`/projects/${project.id}/edit`}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
-                                        title={dict.common.edit}
-                                    >
-                                        <Pencil className="h-3.5 w-3.5" />
-                                    </Link>
+                                    {canEdit && (
+                                        <Link
+                                            href={`/projects/${project.id}/edit`}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-blue-600"
+                                            title={dict.common.edit}
+                                        >
+                                            <Pencil className="h-3.5 w-3.5" />
+                                        </Link>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <Link
-                                        href={`/projects/${project.id}/edit`}
-                                        className="text-sm text-slate-400 hover:text-blue-600 flex items-center gap-1 transition-colors"
-                                    >
-                                        <Github className="h-3.5 w-3.5" />
-                                        <span>{dict.project.addGithub}</span>
-                                        <Pencil className="h-3 w-3 ml-1 opacity-50" />
-                                    </Link>
+                                    {canEdit && (
+                                        <Link
+                                            href={`/projects/${project.id}/edit`}
+                                            className="text-sm text-slate-400 hover:text-blue-600 flex items-center gap-1 transition-colors"
+                                        >
+                                            <Github className="h-3.5 w-3.5" />
+                                            <span>{dict.project.addGithub}</span>
+                                            <Pencil className="h-3 w-3 ml-1 opacity-50" />
+                                        </Link>
+                                    )}
                                 </div>
                             )}
+                            <div className="flex flex-col gap-1 text-[10px] text-slate-400 mt-2">
+                                {project.createdBy?.name && <span>{dict.common.createdBy} {project.createdBy.name} {dict.common.on} {format(new Date(project.createdAt), 'dd/MM/yyyy HH:mm')}</span>}
+                                {project.updatedBy?.name && <span>{dict.common.updatedBy} {project.updatedBy.name} {dict.common.on} {format(new Date(project.updatedAt), 'dd/MM/yyyy HH:mm')}</span>}
+                            </div>
+
                         </div>
 
 
@@ -224,7 +228,8 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
                 {/* Metrics Grid */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div className="flex items-center gap-4">
                             <div className="rounded-lg bg-blue-50 p-3">
@@ -243,23 +248,32 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <CheckCircle2 className="h-6 w-6 text-green-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">{dict.project.completed}</p>
-                                <div className="flex items-baseline gap-2">
-                                    <p className="text-2xl font-bold text-slate-900">{completedStories}</p>
-                                    <span className="text-sm font-medium text-green-600">({completionRate}%)</span>
-                                </div>
+                                <p className="text-sm font-medium text-slate-500">{dict.project.passed}</p>
+                                <p className="text-2xl font-bold text-slate-900">{passedStories}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="rounded-lg bg-yellow-50 p-3">
-                                <Clock className="h-6 w-6 text-yellow-600" />
+                            <div className="rounded-lg bg-red-50 p-3">
+                                <AlertCircle className="h-6 w-6 text-red-600" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">{dict.project.pending}</p>
-                                <p className="text-2xl font-bold text-slate-900">{pendingStories}</p>
+                                <p className="text-sm font-medium text-slate-500">{dict.project.failed}</p>
+                                <p className="text-2xl font-bold text-slate-900">{failedStories}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <div className="rounded-lg bg-slate-50 p-3">
+                                <Clock className="h-6 w-6 text-slate-600" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-slate-500">{dict.project.untested}</p>
+                                <p className="text-2xl font-bold text-slate-900">{untestedStories}</p>
                             </div>
                         </div>
                     </div>
@@ -269,22 +283,24 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Sidebar / Actions */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <h3 className="font-semibold text-slate-900 mb-4">{dict.project.features}</h3>
-                            <form action={createFeature.bind(null, project.id)} className="space-y-3">
-                                <input
-                                    type="text"
-                                    name="name"
-                                    placeholder={dict.project.newFeature}
-                                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
-                                    required
-                                />
-                                <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-all">
-                                    <FolderPlus className="h-4 w-4" />
-                                    {dict.common.create}
-                                </button>
-                            </form>
-                        </div>
+                        {(userRole === 'ADMIN' || userRole === 'OWNER' || userRole === 'FULL') && (
+                            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                                <h3 className="font-semibold text-slate-900 mb-4">{dict.project.features}</h3>
+                                <form action={createFeature.bind(null, project.id)} className="space-y-3">
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder={dict.project.newFeature}
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
+                                        required
+                                    />
+                                    <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-white border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-all">
+                                        <FolderPlus className="h-4 w-4" />
+                                        {dict.common.create}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
 
                         <div className="hidden lg:block rounded-xl border border-slate-200 bg-blue-50 p-5">
                             <div className="flex items-start gap-3">
@@ -312,6 +328,6 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

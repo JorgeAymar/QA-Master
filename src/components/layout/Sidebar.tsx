@@ -5,22 +5,26 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, FolderKanban, LogOut, User, Bug, Shield } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { Dictionary } from '@/lib/dictionaries';
+import { UserMenu } from './UserMenu';
 
 interface SidebarProps {
     dict: Dictionary;
-    role?: string;
+    user?: {
+        name: string | null;
+        email: string | null;
+        role: string;
+    } | null;
 }
 
-export function Sidebar({ dict, role }: SidebarProps) {
+export function Sidebar({ dict, user }: SidebarProps) {
     const pathname = usePathname();
 
     const navigation = [
         { name: dict.sidebar.dashboard, href: '/', icon: LayoutDashboard },
         { name: dict.sidebar.projects, href: '/projects', icon: FolderKanban },
-        { name: dict.sidebar.profile, href: '/profile', icon: User },
     ];
 
-    if (role === 'ADMIN') {
+    if (user?.role === 'ADMIN') {
         navigation.push({ name: 'Admin', href: '/admin', icon: Shield });
     }
 
@@ -55,12 +59,7 @@ export function Sidebar({ dict, role }: SidebarProps) {
                 })}
             </nav>
             <div className="border-t border-slate-800 p-4">
-                <form action={logout}>
-                    <button className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                        <LogOut className="h-5 w-5 text-slate-400 group-hover:text-white" />
-                        {dict.sidebar.signOut}
-                    </button>
-                </form>
+                {user && <UserMenu dict={dict} user={user} />}
             </div>
         </div>
     );
