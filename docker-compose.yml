@@ -8,8 +8,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-qa_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-qa_db}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+    # ports mapping removed to keep PostgreSQL internal to Docker network
+    # ports:
+    #   - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -24,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: qa_app
+    container_name: qa-master
     ports:
       - "${APP_PORT:-3000}:3000"
     environment:
