@@ -1,8 +1,8 @@
-FROM node:20-alpine AS base
+FROM node:20-bullseye-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# No need for libc6-compat on Debian
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
