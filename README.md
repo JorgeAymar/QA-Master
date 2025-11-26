@@ -68,11 +68,7 @@ QA Master is a comprehensive web application designed to streamline the Quality 
     npx prisma db push
     ```
 
-6.  **Seed Initial Data (Optional):**
-    To create a demo user (`jorge.s.aymar@gmail.com` / `demo100`):
-    ```bash
-    npx ts-node prisma/seed.ts
-    ```
+
 
 ### Running the Application
 
