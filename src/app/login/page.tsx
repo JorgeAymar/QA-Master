@@ -3,6 +3,9 @@ import { LoginForm } from '@/components/auth/LoginForm';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
+// Force dynamic rendering - this page needs database access
+export const dynamic = 'force-dynamic';
+
 export default async function LoginPage() {
     // Check if database is empty - redirect to setup if no users exist
     const userCount = await prisma.user.count();
