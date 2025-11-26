@@ -8,10 +8,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-qa_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-qa_db}
-    # Port mapping commented out - PostgreSQL only accessible within Docker network
-    # Uncomment if you need to access PostgreSQL from outside Docker
-    # ports:
-    #   - "${POSTGRES_PORT:-5432}:5432"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
