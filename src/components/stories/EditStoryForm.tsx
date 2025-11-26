@@ -16,6 +16,7 @@ interface Story {
     title: string;
     acceptanceCriteria: string;
     featureId: string | null;
+    documentUrl: string | null;
 }
 
 interface EditStoryFormProps {
@@ -79,6 +80,20 @@ export function EditStoryForm({ projectId, story, features, dict }: EditStoryFor
                     placeholder={dict.forms.criteriaPlaceholder}
                     className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none"
                     required
+                />
+            </div>
+
+            <div className="space-y-2">
+                <label htmlFor="documentUrl" className="text-sm font-medium text-slate-700">
+                    {dict.forms.documentUrl}
+                </label>
+                <input
+                    type="url"
+                    id="documentUrl"
+                    name="documentUrl"
+                    defaultValue={story.documentUrl || ''}
+                    placeholder={dict.forms.documentUrlPlaceholder}
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none"
                 />
             </div>
 

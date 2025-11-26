@@ -24,15 +24,25 @@ import { getDictionary } from '@/lib/dictionaries';
 
 import { logActivity } from '@/lib/activity';
 
-export default async function ProjectReportPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProjectReportPage({
+    params,
+    searchParams
+}: {
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ storyId?: string }>
+}) {
     const { id } = await params;
+    const { storyId } = await searchParams;
     const lang = await getUserLanguage();
     const dict = getDictionary(lang);
+
+    const whereStory = storyId ? { id: storyId } : {};
 
     const project = await prisma.project.findUnique({
         where: { id },
         include: {
             stories: {
+                where: whereStory,
                 include: {
                     testResults: {
                         orderBy: { createdAt: 'desc' },

@@ -17,6 +17,8 @@ interface FeatureGroupProps {
     feature: {
         id: string;
         name: string;
+        createdBy?: { name: string | null } | null;
+        updatedBy?: { name: string | null } | null;
     };
     projectId: string;
     storyCount: number;
@@ -94,10 +96,18 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
                         </form>
                     ) : (
                         <>
-                            <h3 className="text-lg font-semibold text-slate-900">{feature.name}</h3>
-                            <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">
-                                {storyCount} {dict.project.stories}
-                            </span>
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-lg font-semibold text-slate-900">{feature.name}</h3>
+                                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">
+                                        {storyCount} {dict.project.stories}
+                                    </span>
+                                </div>
+                                <div className="flex gap-2 text-[10px] text-slate-400">
+                                    {feature.createdBy?.name && <span>Created by {feature.createdBy.name}</span>}
+                                    {feature.updatedBy?.name && <span>• Updated by {feature.updatedBy.name}</span>}
+                                </div>
+                            </div>
                             <Link
                                 href={`/projects/${projectId}/stories/new?featureId=${feature.id}`}
                                 className="ml-2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-blue-600"

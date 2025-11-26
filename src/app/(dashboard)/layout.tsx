@@ -3,6 +3,8 @@ import { Header } from "@/components/layout/Header";
 import { getUserLanguage, verifySession } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 import { prisma } from '@/lib/prisma';
+import { TestExecutionProvider } from '@/context/TestExecutionContext';
+import { AnalysisStatusBar } from '@/components/ui/AnalysisStatusBar';
 
 export default async function DashboardLayout({
     children,
@@ -20,12 +22,15 @@ export default async function DashboardLayout({
     });
 
     return (
-        <div className="flex h-screen bg-slate-50">
-            <Sidebar dict={dict} role={user?.role} />
-            <div className="flex flex-1 flex-col overflow-hidden">
-                <Header dict={dict} />
-                <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <TestExecutionProvider>
+            <div className="flex h-screen bg-slate-50">
+                <Sidebar dict={dict} role={user?.role} />
+                <div className="flex flex-1 flex-col overflow-hidden">
+                    <Header dict={dict} />
+                    <main className="flex-1 overflow-y-auto p-8">{children}</main>
+                </div>
+                <AnalysisStatusBar />
             </div>
-        </div>
+        </TestExecutionProvider>
     );
 }

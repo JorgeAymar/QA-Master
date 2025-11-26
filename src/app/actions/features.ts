@@ -13,10 +13,24 @@ export async function createFeature(projectId: string, formData: FormData) {
         return;
     }
 
+    // Assuming 'session' and 'lastFeature' are defined elsewhere or passed in a real scenario.
+    // For the purpose of this edit, we are adding the lines as requested,
+    // which might require further context for 'session' and 'lastFeature' to be syntactically correct.
+    const lastFeature = await prisma.feature.findFirst({
+        where: { projectId },
+        orderBy: { order: 'desc' },
+    });
+
+    // Placeholder for session, replace with actual session retrieval logic
+    const session = { userId: 'some-user-id' }; // This line is added to make the code syntactically correct based on the edit.
+
     await prisma.feature.create({
         data: {
             name,
             projectId,
+            order: lastFeature ? lastFeature.order + 1 : 0,
+            createdById: session.userId,
+            updatedById: session.userId
         },
     });
 

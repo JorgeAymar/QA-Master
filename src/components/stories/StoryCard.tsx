@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Dictionary } from '@/lib/dictionaries';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { StoryHistoryModal } from './StoryHistoryModal';
+import { useTestExecution } from '@/context/TestExecutionContext';
 
 interface TestResult {
     status: string;
@@ -22,6 +23,9 @@ interface StoryWithResults {
     status: string;
     testResults: TestResult[];
     featureId: string | null;
+    documentUrl: string | null;
+    createdBy?: { name: string | null } | null;
+    updatedBy?: { name: string | null } | null;
 }
 
 interface StoryCardProps {
@@ -29,15 +33,19 @@ interface StoryCardProps {
     projectId: string;
     dict: Dictionary;
     githubRepo?: string | null;
+    userRole?: string; // 'ADMIN', 'FULL', 'READ'
 }
 
-export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps) {
+export function StoryCard({ story, projectId, dict, githubRepo, userRole = 'READ' }: StoryCardProps) {
     const router = useRouter();
     const lastResult = story.testResults[0];
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isRunModalOpen, setIsRunModalOpen] = useState(false);
+    const { setIsExecuting } = useTestExecution();
+
+    const canEdit = userRole === 'ADMIN' || userRole === 'FULL';
 
     const getGithubIssueUrl = () => {
         if (!githubRepo || !lastResult || lastResult.status !== 'FAIL') return null;
@@ -68,6 +76,19 @@ export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps
 
                         <div className={`text-sm text-slate-600 ${!isExpanded && 'line-clamp-2'}`}>
                             <p className="whitespace-pre-wrap">{story.acceptanceCriteria}</p>
+                            {story.documentUrl && (
+                                <div className="mt-2">
+                                    <a
+                                        href={story.documentUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
+                                    >
+                                        <FileText className="h-3 w-3" />
+                                        {dict.forms.documentUrl}
+                                    </a>
+                                </div>
+                            )}
                         </div>
 
                         {story.acceptanceCriteria.length > 100 && (
@@ -82,6 +103,11 @@ export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps
                                 )}
                             </button>
                         )}
+
+                        <div className="flex gap-2 text-[10px] text-slate-400 mt-1">
+                            {story.createdBy?.name && <span>Created by {story.createdBy.name}</span>}
+                            {story.updatedBy?.name && <span>• Updated by {story.updatedBy.name}</span>}
+                        </div>
                     </div>
 
                     <div className="flex flex-col items-end gap-3">
@@ -116,16 +142,18 @@ export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps
 
                 <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-1">
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setIsRunModalOpen(true)}
-                            className="flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-slate-800"
-                            title={dict.project.play}
-                        >
-                            <Play className="h-3.5 w-3.5" />
-                            {dict.project.play}
-                        </button>
+                        {canEdit && (
+                            <button
+                                onClick={() => setIsRunModalOpen(true)}
+                                className="flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-slate-800"
+                                title={dict.project.play}
+                            >
+                                <Play className="h-3.5 w-3.5" />
+                                {dict.project.play}
+                            </button>
+                        )}
                         <Link
-                            href={`/projects/${projectId}/report`}
+                            href={`/projects/${projectId}/report?storyId=${story.id}`}
                             className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-blue-600"
                             title={dict.project.viewReport}
                         >
@@ -146,22 +174,24 @@ export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps
                         )}
                     </div>
 
-                    <div className="flex items-center gap-1">
-                        <Link
-                            href={`/projects/${projectId}/stories/${story.id}/edit`}
-                            className="rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600"
-                            title={dict.common.edit}
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </Link>
-                        <button
-                            onClick={() => setIsDeleteModalOpen(true)}
-                            className="rounded-md p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                            title={dict.common.delete}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </button>
-                    </div>
+                    {canEdit && (
+                        <div className="flex items-center gap-1">
+                            <Link
+                                href={`/projects/${projectId}/stories/${story.id}/edit`}
+                                className="rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600"
+                                title={dict.common.edit}
+                            >
+                                <Pencil className="h-4 w-4" />
+                            </Link>
+                            <button
+                                onClick={() => setIsDeleteModalOpen(true)}
+                                className="rounded-md p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                                title={dict.common.delete}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -176,8 +206,16 @@ export function StoryCard({ story, projectId, dict, githubRepo }: StoryCardProps
                 isOpen={isRunModalOpen}
                 onClose={() => setIsRunModalOpen(false)}
                 onConfirm={async () => {
-                    await runStoryTest(projectId, story.id);
-                    router.refresh();
+                    try {
+                        setIsExecuting(true);
+                        setIsRunModalOpen(false); // Close modal immediately
+                        await runStoryTest(projectId, story.id);
+                        router.refresh();
+                    } catch (error) {
+                        console.error('Error running test:', error);
+                    } finally {
+                        setIsExecuting(false);
+                    }
                 }}
                 title={dict.project.runTests}
                 message={

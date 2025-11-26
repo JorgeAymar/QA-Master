@@ -19,6 +19,15 @@ model User {
   language  String   @default("es")
   role      String   @default("USER")
   isActive  Boolean  @default(true)
+  projectMemberships ProjectMember[]
+  
+  // Tracking relations
+  createdProjects Project[] @relation("CreatedProjects")
+  updatedProjects Project[] @relation("UpdatedProjects")
+  createdFeatures Feature[] @relation("CreatedFeatures")
+  updatedFeatures Feature[] @relation("UpdatedFeatures")
+  createdStories  UserStory[] @relation("CreatedStories")
+  updatedStories  UserStory[] @relation("UpdatedStories")
 }
 
 model Project {
@@ -34,6 +43,25 @@ model Project {
   features     Feature[]
   testRuns     TestRun[]
   stories      UserStory[]
+  members      ProjectMember[]
+
+  // Tracking fields
+  createdById String?
+  createdBy   User?   @relation("CreatedProjects", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   User?   @relation("UpdatedProjects", fields: [updatedById], references: [id])
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   @default("READ") // READ, FULL, OWNER
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
 }
 
 model Feature {
@@ -45,6 +73,12 @@ model Feature {
   order       Int         @default(0)
   project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userStories UserStory[]
+
+  // Tracking fields
+  createdById String?
+  createdBy   User?   @relation("CreatedFeatures", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   User?   @relation("UpdatedFeatures", fields: [updatedById], references: [id])
 }
 
 model UserStory {
@@ -57,9 +91,16 @@ model UserStory {
   updatedAt          DateTime     @updatedAt
   featureId          String?
   order              Int          @default(0)
+  documentUrl        String?
   testResults        TestResult[]
   feature            Feature?     @relation(fields: [featureId], references: [id])
   project            Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Tracking fields
+  createdById String?
+  createdBy   User?   @relation("CreatedStories", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   User?   @relation("UpdatedStories", fields: [updatedById], references: [id])
 }
 
 model TestRun {

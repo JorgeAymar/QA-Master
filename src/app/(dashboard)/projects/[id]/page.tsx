@@ -8,7 +8,8 @@ import { notFound } from 'next/navigation';
 import { FeatureGroup } from '@/components/features/FeatureGroup';
 import { StoryCard } from '@/components/stories/StoryCard';
 import { ProjectBoard } from '@/components/projects/ProjectBoard';
-import { getUserLanguage } from '@/lib/session';
+import { ShareProjectModal } from '@/components/projects/ShareProjectModal';
+import { getUserLanguage, verifySession } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
 interface TestResult {
@@ -29,6 +30,7 @@ interface StoryWithResults {
     testResults: TestResult[];
     featureId: string | null;
     order: number;
+    documentUrl: string | null;
     feature?: Feature | null;
 }
 
@@ -37,10 +39,46 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
     const lang = await getUserLanguage();
     const dict = getDictionary(lang);
 
+    const session = await verifySession();
+    const currentUser = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { role: true }
+    });
+
     const project = await prisma.project.findUnique({
         where: { id },
-        include: { features: true },
+        include: {
+            features: {
+                include: {
+                    createdBy: { select: { name: true } },
+                    updatedBy: { select: { name: true } }
+                }
+            },
+            members: {
+                include: {
+                    user: {
+                        select: {
+                            name: true,
+                            email: true,
+                            image: true
+                        }
+                    }
+                }
+            },
+            createdBy: { select: { name: true } },
+            updatedBy: { select: { name: true } }
+        },
     });
+
+    let userRole = 'READ';
+    if (currentUser?.role === 'ADMIN') {
+        userRole = 'ADMIN';
+    } else {
+        const member = project?.members.find((m: { userId: string, role: string }) => m.userId === session.userId);
+        if (member) {
+            userRole = member.role;
+        }
+    }
 
     if (!project) {
         notFound();
@@ -67,6 +105,9 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
     const pendingStories = stories.filter((s) => s.status === 'PENDING').length;
     const completionRate = stories.length > 0 ? Math.round((completedStories / stories.length) * 100) : 0;
 
+    const isOwner = userRole === 'OWNER' || userRole === 'ADMIN';
+    const isShared = !isOwner;
+
     return (
         <div className="min-h-screen bg-slate-50/50 pb-20">
             {/* Header Section */}
@@ -82,13 +123,38 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                 <span className="text-slate-900 font-medium">{project.name}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{project.name}</h1>
-                                <Link
-                                    href={`/projects/${project.id}/edit`}
-                                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 transition-colors"
-                                >
-                                    {dict.common.edit}
-                                </Link>
+                                <h1 className={`text-3xl font-bold tracking-tight ${isShared ? 'text-indigo-600' : 'text-slate-900'}`}>
+                                    {project.name}
+                                </h1>
+                                {isOwner && (
+                                    <div className="flex items-center gap-2">
+                                        <Link
+                                            href={`/projects/${project.id}/edit`}
+                                            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 transition-colors"
+                                        >
+                                            {dict.common.edit}
+                                        </Link>
+                                        <ShareProjectModal
+                                            projectId={project.id}
+                                            members={project.members}
+                                            currentUserRole={userRole}
+                                            dict={dict}
+                                        />
+                                    </div>
+                                )}
+                                {isShared && (
+                                    <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600 border border-indigo-100">
+                                        Shared with you
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-slate-500 mt-1">
+                                {project.createdBy?.name && (
+                                    <span>Created by {project.createdBy.name}</span>
+                                )}
+                                {project.updatedBy?.name && (
+                                    <span>Updated by {project.updatedBy.name}</span>
+                                )}
                             </div>
                             {project.description && (
                                 <div className="flex items-center gap-2 group">
@@ -234,13 +300,14 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     </div>
 
                     {/* Main List */}
-                    <div className="lg:col-span-3">
+                    <div className="lg:col-span-3 space-y-8">
                         <ProjectBoard
                             initialStories={stories}
                             features={project.features}
                             projectId={project.id}
                             dict={dict}
                             githubRepo={project.githubRepo}
+                            userRole={userRole}
                         />
                     </div>
                 </div>

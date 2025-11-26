@@ -20,6 +20,8 @@ interface Feature {
     id: string;
     name: string;
     order: number;
+    createdBy?: { name: string | null } | null;
+    updatedBy?: { name: string | null } | null;
 }
 
 interface StoryWithResults {
@@ -30,6 +32,9 @@ interface StoryWithResults {
     testResults: TestResult[];
     featureId: string | null;
     order: number;
+    documentUrl: string | null;
+    createdBy?: { name: string | null } | null;
+    updatedBy?: { name: string | null } | null;
 }
 
 interface ProjectBoardProps {
@@ -38,6 +43,7 @@ interface ProjectBoardProps {
     projectId: string;
     dict: Dictionary;
     githubRepo?: string | null;
+    userRole?: string; // 'ADMIN', 'FULL', 'READ'
 }
 
 const dropAnimation: DropAnimation = {
@@ -50,12 +56,14 @@ const dropAnimation: DropAnimation = {
     }),
 };
 
-export function ProjectBoard({ initialStories, features: initialFeatures, projectId, dict, githubRepo }: ProjectBoardProps) {
+export function ProjectBoard({ initialStories, features: initialFeatures, projectId, dict, githubRepo, userRole = 'READ' }: ProjectBoardProps) {
     const [stories, setStories] = useState(initialStories.sort((a, b) => a.order - b.order));
     const [features, setFeatures] = useState(initialFeatures.sort((a, b) => a.order - b.order));
     const [activeStory, setActiveStory] = useState<StoryWithResults | null>(null);
     const [activeFeature, setActiveFeature] = useState<Feature | null>(null);
     const [mounted, setMounted] = useState(false);
+
+    const canEdit = userRole === 'ADMIN' || userRole === 'FULL';
 
     useEffect(() => {
         setMounted(true);
@@ -114,6 +122,8 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
     }
 
     function handleDragStart(event: DragStartEvent) {
+        if (!canEdit) return; // Prevent drag start if read-only
+
         const { active } = event;
         const story = stories.find(s => s.id === active.id);
         if (story) {
@@ -128,6 +138,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
     }
 
     function handleDragOver(event: DragOverEvent) {
+        if (!canEdit) return;
         const { active, over } = event;
         if (!over) return;
 
@@ -178,6 +189,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
     }
 
     async function handleDragEnd(event: DragEndEvent) {
+        if (!canEdit) return;
         const { active, over } = event;
 
         if (activeFeature && over) {
@@ -281,7 +293,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                             >
                                 <div className="grid grid-cols-1 gap-4 min-h-[60px]">
                                     {storiesByFeature[feature.id]?.map(story => (
-                                        <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} />
+                                        <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} userRole={userRole} />
                                     ))}
                                 </div>
                             </SortableContext>
@@ -306,7 +318,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                         >
                             <div className="grid grid-cols-1 gap-4 min-h-[60px]">
                                 {uncategorizedStories.map(story => (
-                                    <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} />
+                                    <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} userRole={userRole} />
                                 ))}
                             </div>
                         </SortableContext>
@@ -329,7 +341,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeStory ? (
                     <div className="opacity-80 rotate-2 scale-105 cursor-grabbing">
-                        <StoryCard story={activeStory} projectId={projectId} dict={dict} githubRepo={githubRepo} />
+                        <StoryCard story={activeStory} projectId={projectId} dict={dict} githubRepo={githubRepo} userRole={userRole} />
                     </div>
                 ) : activeFeature ? (
                     <div className="opacity-80 rotate-2 scale-105 cursor-grabbing">
@@ -343,9 +355,10 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
     );
 }
 
-function SortableStoryCard({ story, projectId, dict, githubRepo }: { story: StoryWithResults, projectId: string, dict: Dictionary, githubRepo?: string | null }) {
+function SortableStoryCard({ story, projectId, dict, githubRepo, userRole }: { story: StoryWithResults, projectId: string, dict: Dictionary, githubRepo?: string | null, userRole: string }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: story.id,
+        disabled: userRole === 'READ' // Disable dragging if read-only
     });
 
     const style = {
@@ -355,7 +368,7 @@ function SortableStoryCard({ story, projectId, dict, githubRepo }: { story: Stor
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes} className={isDragging ? 'opacity-30' : ''}>
-            <StoryCard story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} />
+            <StoryCard story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} userRole={userRole} />
         </div>
     );
 }

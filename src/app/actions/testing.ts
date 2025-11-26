@@ -3,8 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { logActivity } from '@/lib/activity';
-
-// ...
+import { evaluateStoryWithAI } from '@/lib/ai-testing';
 
 export async function runTests(projectId: string) {
     const project = await prisma.project.findUnique({
@@ -25,15 +24,40 @@ export async function runTests(projectId: string) {
     await logActivity(projectId, 'EXECUTE', 'PROJECT', 'Full Project Test Run');
 
     try {
-        // ... (existing code)
+        for (const story of project.stories) {
+            const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria);
+
+            await prisma.testResult.create({
+                data: {
+                    runId: testRun.id,
+                    storyId: story.id,
+                    status: result.status,
+                    logs: result.logs,
+                    screenshot: result.screenshot,
+                },
+            });
+        }
+
+        await prisma.testRun.update({
+            where: { id: testRun.id },
+            data: {
+                status: 'COMPLETED',
+                completedAt: new Date(),
+            },
+        });
     } catch (error) {
-        // ...
+        console.error('Project Test Execution Failed:', error);
+        await prisma.testRun.update({
+            where: { id: testRun.id },
+            data: {
+                status: 'FAILED',
+                completedAt: new Date(),
+            },
+        });
     }
 
     revalidatePath(`/projects/${projectId}`);
 }
-
-import { evaluateStoryWithAI } from '@/lib/ai-testing';
 
 export async function runStoryTest(projectId: string, storyId: string) {
     const project = await prisma.project.findUnique({
@@ -60,9 +84,34 @@ export async function runStoryTest(projectId: string, storyId: string) {
     await logActivity(projectId, 'EXECUTE', 'STORY', story.title);
 
     try {
-        // ... (existing code)
+        const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria);
+
+        await prisma.testResult.create({
+            data: {
+                runId: testRun.id,
+                storyId: story.id,
+                status: result.status,
+                logs: result.logs,
+                screenshot: result.screenshot,
+            },
+        });
+
+        await prisma.testRun.update({
+            where: { id: testRun.id },
+            data: {
+                status: 'COMPLETED',
+                completedAt: new Date(),
+            },
+        });
     } catch (error) {
-        // ...
+        console.error('Test Execution Failed:', error);
+        await prisma.testRun.update({
+            where: { id: testRun.id },
+            data: {
+                status: 'FAILED',
+                completedAt: new Date(),
+            },
+        });
     }
 
     revalidatePath(`/projects/${projectId}`);
