@@ -1,6 +1,9 @@
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+
+// Force dynamic rendering - this page needs database access
+export const dynamic = 'force-dynamic';
 import { ProfileForm } from '@/components/profile/ProfileForm';
 
 import { getDictionary } from '@/lib/dictionaries';

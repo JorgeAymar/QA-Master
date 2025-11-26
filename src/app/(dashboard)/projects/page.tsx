@@ -1,8 +1,15 @@
+```typescript
 import Link from 'next/link';
 import { getProjects } from '@/app/actions/projects';
 import { Plus, Globe, FileText, PlayCircle, Github } from 'lucide-react';
 import { ProjectGithubLink } from '@/components/projects/ProjectGithubLink';
 import { DraggableProjectList } from '@/components/projects/DraggableProjectList';
+
+import { getUserLanguage } from '@/lib/session';
+import { getDictionary } from '@/lib/dictionaries';
+
+// Force dynamic rendering - this page needs database access
+export const dynamic = 'force-dynamic';
 
 interface ProjectWithCounts {
     id: string;

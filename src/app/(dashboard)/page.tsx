@@ -4,6 +4,9 @@ import { CheckCircle, FolderKanban, LayoutDashboard, PlayCircle } from 'lucide-r
 import { getUserLanguage } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
+// Force dynamic rendering - this page needs database access
+export const dynamic = 'force-dynamic';
+
 // ...
 
 async function getStats() {
