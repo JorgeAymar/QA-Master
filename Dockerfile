@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -28,7 +28,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Production image with Playwright support
-FROM node:18-bullseye-slim AS runner
+FROM node:20-bullseye-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
