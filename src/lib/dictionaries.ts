@@ -104,6 +104,15 @@ export const dictionaries = {
             passwordRequired: 'Requerido para cambiar contraseña',
             passwordOptional: 'Dejar en blanco para mantener actual',
         },
+        setup: {
+            title: 'Bienvenido a QA Master',
+            subtitle: 'Configuración Inicial',
+            description: 'Parece que es la primera vez que usas QA Master. Crea tu cuenta de administrador para comenzar.',
+            createAccount: 'Crear Cuenta de Administrador',
+            successTitle: '¡Cuenta creada exitosamente!',
+            successMessage: 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
+            goToLogin: 'Ir al Login',
+        },
         report: {
             title: 'Reporte de QA',
             totalStories: 'Total Historias',
@@ -253,6 +262,15 @@ export const dictionaries = {
             passwordRequired: 'Required to change password',
             passwordOptional: 'Leave blank to keep current',
         },
+        setup: {
+            title: 'Welcome to QA Master',
+            subtitle: 'Initial Setup',
+            description: 'It looks like this is your first time using QA Master. Create your administrator account to get started.',
+            createAccount: 'Create Administrator Account',
+            successTitle: 'Account created successfully!',
+            successMessage: 'Your account has been created. You can now log in.',
+            goToLogin: 'Go to Login',
+        },
         report: {
             title: 'QA Report',
             totalStories: 'Total Stories',
@@ -401,6 +419,15 @@ export const dictionaries = {
             portuguese: 'Português',
             passwordRequired: 'Necessário para alterar a senha',
             passwordOptional: 'Deixe em branco para manter a atual',
+        },
+        setup: {
+            title: 'Bem-vindo ao QA Master',
+            subtitle: 'Configuração Inicial',
+            description: 'Parece que é a primeira vez que você usa o QA Master. Crie sua conta de administrador para começar.',
+            createAccount: 'Criar Conta de Administrador',
+            successTitle: 'Conta criada com sucesso!',
+            successMessage: 'Sua conta foi criada. Agora você pode fazer login.',
+            goToLogin: 'Ir para Login',
         },
         report: {
             title: 'Relatório de QA',
