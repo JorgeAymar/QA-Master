@@ -100,48 +100,75 @@ To run the internal QA tests defined in your projects:
 2. Click **"Run Tests"**.
 3. View results in the dashboard or the **"Report"** page.
 
-## 🐳 Docker Deployment
+## 🐳 Production Deployment (VPS)
 
-### Production Deployment with Docker
+This application is optimized for deployment on a VPS using Docker and Docker Compose, with Nginx as a reverse proxy.
 
-1. **Build and run with Docker Compose:**
-   ```bash
-   docker-compose up --build -d
-   ```
+### 1. Prerequisites
 
-   This will start both the PostgreSQL database and the Next.js application.
+- Docker & Docker Compose installed on the VPS.
+- A domain pointing to your VPS IP (e.g., `qamaster.labshub.cc`).
 
-2. **Run database migrations:**
-   ```bash
-   docker-compose exec app npx prisma migrate deploy
-   ```
+### 2. Setup
 
-3. **Access the application:**
-   Open [http://localhost:3000](http://localhost:3000)
+1.  **Clone the repository:**
+    ```bash
+    cd /opt
+    git clone <repository-url> docker-qa-master
+    cd docker-qa-master
+    ```
 
-### Environment Variables for Production
+2.  **Configure Environment Variables:**
+    Create a `.env` file based on `env.example`:
+    ```bash
+    cp env.example .env
+    nano .env
+    ```
+    
+    Ensure the following variables are set:
+    ```env
+    # Database (Internal Docker Network)
+    POSTGRES_USER=qa_user
+    POSTGRES_PASSWORD=your_secure_password
+    POSTGRES_DB=qa_db
+    
+    # Application
+    DATABASE_URL="postgresql://qa_user:your_secure_password@postgres:5432/qa_db?schema=public"
+    JWT_SECRET="generate-a-secure-random-string-min-32-chars"
+    APP_PORT=3001
+    NODE_ENV=production
+    ```
 
-Make sure to set the following environment variables in production:
+3.  **Nginx Configuration:**
+    The project includes an `nginx.conf` file. You can use it directly or include it in your main Nginx configuration.
+    
+    Example `nginx.conf` provided in repo proxies `qamaster.labshub.cc` to `http://localhost:3001`.
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `JWT_SECRET`: Secure secret key for JWT tokens (minimum 32 characters)
-- `NODE_ENV`: Set to `production`
+### 3. Deployment
 
-**⚠️ Important**: Change the default `JWT_SECRET` in `docker-compose.yml` before deploying to production!
+1.  **Build and Start Containers:**
+    ```bash
+    docker-compose up -d --build
+    ```
 
-### Manual Docker Build
+2.  **Run Migrations:**
+    The application container includes the Prisma CLI. Run migrations manually for the first time:
+    ```bash
+    docker-compose exec app npx prisma migrate deploy
+    ```
 
-If you prefer to build and run manually:
+3.  **Create Admin User:**
+    Access the application at your domain (e.g., `https://qamaster.labshub.cc`).
+    The first user registered will automatically be assigned the **ADMIN** role.
+
+### 4. Updates
+
+To update the application after pushing changes to the repository:
 
 ```bash
-# Build the image
-docker build -t qa-master .
-
-# Run with environment variables
-docker run -p 3000:3000 \
-  -e DATABASE_URL="postgresql://user:password@host:5432/db" \
-  -e JWT_SECRET="your-secret-key" \
-  qa-master
+git pull origin main
+docker-compose build --no-cache app
+docker-compose up -d
 ```
 
 ## 📝 License
