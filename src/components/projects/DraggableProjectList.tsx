@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import Link from 'next/link';
 import {
     DndContext,
@@ -123,6 +123,7 @@ function SortableProjectCard({ project, dict }: { project: ProjectWithCounts; di
 
 export function DraggableProjectList({ projects: initialProjects, dict }: DraggableProjectListProps) {
     const [projects, setProjects] = useState(initialProjects);
+    const id = useId();
 
     useEffect(() => {
         setProjects(initialProjects);
@@ -163,6 +164,7 @@ export function DraggableProjectList({ projects: initialProjects, dict }: Dragga
 
     return (
         <DndContext
+            id={id}
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
