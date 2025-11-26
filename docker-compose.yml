@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: qa_app_postgres
+    container_name: qa_master_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-qa_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
