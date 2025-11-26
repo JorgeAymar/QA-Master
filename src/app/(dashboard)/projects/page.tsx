@@ -1,10 +1,8 @@
-```typescript
 import Link from 'next/link';
 import { getProjects } from '@/app/actions/projects';
 import { Plus, Globe, FileText, PlayCircle, Github } from 'lucide-react';
 import { ProjectGithubLink } from '@/components/projects/ProjectGithubLink';
 import { DraggableProjectList } from '@/components/projects/DraggableProjectList';
-
 import { getUserLanguage } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 
@@ -23,9 +21,6 @@ interface ProjectWithCounts {
         testRuns: number;
     };
 }
-
-import { getUserLanguage } from '@/lib/session';
-import { getDictionary } from '@/lib/dictionaries';
 
 export default async function ProjectsPage() {
     const projects = await getProjects() as unknown as ProjectWithCounts[];
