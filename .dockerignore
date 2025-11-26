@@ -69,5 +69,4 @@ __tests__
 # Temporary files
 check_projects.js
 
-# Prisma
-prisma/migrations
+
