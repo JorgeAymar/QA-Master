@@ -40,6 +40,8 @@ export async function createFirstUser(formData: FormData) {
             email,
             password: hashedPassword,
             language: 'es', // Default language
+            role: 'ADMIN',
+            isActive: true,
         },
     });
 

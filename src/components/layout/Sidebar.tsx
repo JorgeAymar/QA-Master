@@ -2,15 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, LogOut, User, Bug } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, LogOut, User, Bug, Shield } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { Dictionary } from '@/lib/dictionaries';
 
 interface SidebarProps {
     dict: Dictionary;
+    role?: string;
 }
 
-export function Sidebar({ dict }: SidebarProps) {
+export function Sidebar({ dict, role }: SidebarProps) {
     const pathname = usePathname();
 
     const navigation = [
@@ -18,6 +19,10 @@ export function Sidebar({ dict }: SidebarProps) {
         { name: dict.sidebar.projects, href: '/projects', icon: FolderKanban },
         { name: dict.sidebar.profile, href: '/profile', icon: User },
     ];
+
+    if (role === 'ADMIN') {
+        navigation.push({ name: 'Admin', href: '/admin', icon: Shield });
+    }
 
     return (
         <div className="flex h-screen w-64 flex-col bg-slate-900 text-white">

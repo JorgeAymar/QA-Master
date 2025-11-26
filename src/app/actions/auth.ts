@@ -32,7 +32,7 @@ export async function signup(prevState: unknown, formData: FormData) {
         },
     });
 
-    await createSession(user.id);
+    await createSession(user.id, user.role);
     redirect('/');
 }
 
@@ -58,7 +58,7 @@ export async function login(prevState: unknown, formData: FormData) {
         return { error: 'Invalid credentials' };
     }
 
-    await createSession(user.id);
+    await createSession(user.id, user.role);
     redirect('/');
 }
 

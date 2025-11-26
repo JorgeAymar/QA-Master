@@ -17,6 +17,8 @@ model User {
   updatedAt DateTime @updatedAt
   image     String?
   language  String   @default("es")
+  role      String   @default("USER")
+  isActive  Boolean  @default(true)
 }
 
 model Project {

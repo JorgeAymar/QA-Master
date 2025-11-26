@@ -5,9 +5,9 @@ import { encrypt, decrypt, cookie } from './auth-jose';
 
 export { encrypt, decrypt };
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, role: string) {
     const expires = new Date(Date.now() + cookie.duration);
-    const session = await encrypt({ userId, expires });
+    const session = await encrypt({ userId, role, expires });
 
     (await cookies()).set(cookie.name, session, { ...cookie.options, expires });
 }
@@ -21,7 +21,10 @@ export async function verifySession() {
         redirect('/login');
     }
 
-    return { userId: payload.userId as string };
+    return {
+        userId: payload.userId as string,
+        role: payload.role as string
+    };
 }
 
 export async function deleteSession() {
