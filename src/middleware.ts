@@ -1,24 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { decrypt } from '@/lib/auth-jose';
-import { prisma } from '@/lib/prisma';
 
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
-
-    // Check if database is empty (no users)
-    const userCount = await prisma.user.count();
-    const isDatabaseEmpty = userCount === 0;
-
-    // If database is empty and not on setup page, redirect to setup
-    if (isDatabaseEmpty && path !== '/setup') {
-        return NextResponse.redirect(new URL('/setup', request.nextUrl));
-    }
-
-    // If database has users and on setup page, redirect to login
-    if (!isDatabaseEmpty && path === '/setup') {
-        return NextResponse.redirect(new URL('/login', request.nextUrl));
-    }
 
     // Normal authentication logic
     const protectedRoutes = ['/', '/projects', '/profile'];
