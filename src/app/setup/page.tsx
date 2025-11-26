@@ -5,6 +5,10 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { User, Mail, Lock } from 'lucide-react';
 
+// Force dynamic rendering - this page needs database access
+export const dynamic = 'force-dynamic';
+
+
 export default async function SetupPage() {
     // Check if database already has users
     const userCount = await prisma.user.count();
