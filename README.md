@@ -100,6 +100,50 @@ To run the internal QA tests defined in your projects:
 2. Click **"Run Tests"**.
 3. View results in the dashboard or the **"Report"** page.
 
+## 🐳 Docker Deployment
+
+### Production Deployment with Docker
+
+1. **Build and run with Docker Compose:**
+   ```bash
+   docker-compose up --build -d
+   ```
+
+   This will start both the PostgreSQL database and the Next.js application.
+
+2. **Run database migrations:**
+   ```bash
+   docker-compose exec app npx prisma migrate deploy
+   ```
+
+3. **Access the application:**
+   Open [http://localhost:3000](http://localhost:3000)
+
+### Environment Variables for Production
+
+Make sure to set the following environment variables in production:
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secure secret key for JWT tokens (minimum 32 characters)
+- `NODE_ENV`: Set to `production`
+
+**⚠️ Important**: Change the default `JWT_SECRET` in `docker-compose.yml` before deploying to production!
+
+### Manual Docker Build
+
+If you prefer to build and run manually:
+
+```bash
+# Build the image
+docker build -t qa-master .
+
+# Run with environment variables
+docker run -p 3000:3000 \
+  -e DATABASE_URL="postgresql://user:password@host:5432/db" \
+  -e JWT_SECRET="your-secret-key" \
+  qa-master
+```
+
 ## 📝 License
 
 MIT License
