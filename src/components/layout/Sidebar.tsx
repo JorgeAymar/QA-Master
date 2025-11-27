@@ -6,6 +6,7 @@ import { LayoutDashboard, FolderKanban, LogOut, User, Bug, Shield } from 'lucide
 import { logout } from '@/app/actions/auth';
 import { Dictionary } from '@/lib/dictionaries';
 import { UserMenu } from './UserMenu';
+import packageJson from '../../../package.json';
 
 interface SidebarProps {
     dict: Dictionary;
@@ -58,8 +59,11 @@ export function Sidebar({ dict, user }: SidebarProps) {
                     );
                 })}
             </nav>
-            <div className="border-t border-slate-800 p-4">
+            <div className="border-t border-slate-800 p-4 space-y-2">
                 {user && <UserMenu dict={dict} user={user} />}
+                <div className="text-center text-xs text-slate-500">
+                    v{packageJson.version}
+                </div>
             </div>
         </div>
     );
