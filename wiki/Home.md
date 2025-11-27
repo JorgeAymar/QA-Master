@@ -1,63 +1,61 @@
-# QA Master - Automated Testing Platform
+# Home
 
-![QA Master](https://img.shields.io/badge/Next.js-16.0-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
-![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?style=for-the-badge&logo=prisma)
+Welcome to the **QA Master** wiki! This documentation will help you get started and make the most of the platform.
 
-**QA Master** is a modern automated testing platform that uses AI to validate user stories in web applications. It combines Playwright for browser automation with OpenAI for intelligent evaluation of acceptance criteria.
+## 📚 Table of Contents
 
-## 🚀 Key Features
+1. [Getting Started](Getting-Started)
+2. [User Guide](User-Guide)
+3. [Project Management](Project-Management)
+4. [User Stories & Features](User-Stories-and-Features)
+5. [Running Tests](Running-Tests)
+6. [Team Collaboration](Team-Collaboration)
+7. [Configuration](Configuration)
+8. [Deployment](Deployment)
+9. [API Reference](API-Reference)
+10. [Troubleshooting](Troubleshooting)
 
-- **AI Testing**: Automatic evaluation of user stories using GPT-4
-- **Project Management**: Organize your projects and features
-- **Drag & Drop**: Easily reorder stories and features
-- **Execution History**: View all past tests with logs and screenshots
-- **Internationalization**: Support for Spanish, English, and Portuguese
-- **Detailed Reports**: Screenshots and AI reasoning
+## 🎯 Quick Links
 
-## 📚 Documentation
+- **[Installation Guide](Getting-Started#installation)** - Set up QA Master locally
+- **[First Steps](Getting-Started#first-steps)** - Create your first project
+- **[Running Your First Test](Running-Tests#quick-start)** - Execute automated tests
+- **[User Roles](Team-Collaboration#user-roles)** - Understand permissions
 
-### Quick Start
-- [Installation and Setup](Installation)
-- [Getting Started](Getting-Started)
-- [Environment Variables](Environment-Variables)
+## 🚀 What is QA Master?
 
-### User Guides
-- [Project Management](Project-Management)
-- [User Stories](User-Stories)
-- [Running Tests](Running-Tests)
-- [Understanding Reports](Understanding-Reports)
+QA Master is an AI-powered automated testing platform that helps teams:
 
-### Development
-- [System Architecture](Architecture)
-- [Project Structure](Project-Structure)
-- [Database Schema](Database-Schema)
-- [API and Server Actions](API-Reference)
+- **Manage** web development projects efficiently
+- **Define** user stories with acceptance criteria
+- **Automate** quality assurance testing using AI
+- **Track** test results and project progress
+- **Collaborate** with team members
 
-### Advanced
-- [AI Testing](AI-Testing)
-- [Internationalization](Internationalization)
-- [Deployment](Deployment)
+## 🌟 Key Features
 
-## 🛠️ Tech Stack
+### AI-Powered Testing
+Leverage OpenAI GPT-4 to intelligently validate your web applications against defined acceptance criteria.
 
-- **Frontend**: Next.js 16, React 19, TailwindCSS 4
-- **Backend**: Next.js Server Actions
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT with bcrypt
-- **Testing**: Playwright + OpenAI GPT-4
-- **Drag & Drop**: @dnd-kit
+### Visual Validation
+Automated browser testing with Playwright captures screenshots and provides detailed test logs.
 
-## 🤝 Contributing
+### Team Collaboration
+Share projects with team members and manage access with role-based permissions (Owner, Editor, Viewer).
 
-Contributions are welcome. Please read our [Contribution Guide](Contributing) before submitting a PR.
+### Multi-Language Support
+Available in Spanish, English, and Portuguese with user-specific preferences.
 
-## 📄 License
+## 🆘 Need Help?
 
-This project is licensed under the MIT License.
+- Check the [Troubleshooting](Troubleshooting) guide
+- Review [Common Issues](Troubleshooting#common-issues)
+- See [FAQs](Troubleshooting#faqs)
 
-## 🔗 Links
+## 📖 Version
 
-- [GitHub Repository](https://github.com/JorgeAymar/QA-Master)
-- [Issues](https://github.com/JorgeAymar/QA-Master/issues)
-- [Roadmap](Roadmap)
+Current Version: **0.6.0**
+
+---
+
+*Last updated: November 2025*

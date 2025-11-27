@@ -1,192 +1,232 @@
-# QA Master - Web QA Automation Tool
+# QA Master - Automated Web Testing Platform
 
-QA Master is a comprehensive web application designed to streamline the Quality Assurance process for web development projects. It allows teams to manage projects, define user stories grouped by features, and run automated validation tests against live URLs.
+![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## 🚀 Features
+QA Master is a comprehensive web application designed to streamline the Quality Assurance process for web development projects. It allows teams to manage projects, define user stories grouped by features, and run automated validation tests against live URLs using AI-powered testing.
 
-- **Project Management**: Create and manage multiple projects with specific base URLs.
-- **User Stories & Features**: 
-  - Define user stories with specific acceptance criteria.
-  - Group stories into "Features" for better organization.
-- **Automated Testing Engine**: 
-  - Runs tests against project URLs.
-  - Validates content presence based on story keywords and acceptance criteria.
-  - Generates pass/fail results with detailed logs.
-- **Dashboards**:
-  - **Global Dashboard**: Overview of all projects and aggregate metrics.
-  - **Project Dashboard**: Detailed view of project progress, feature breakdown, and test history.
-- **Reporting**: Generate and print detailed test reports.
-- **Authentication**: Secure user access with Login/Signup functionality (JWT-based).
-- **User Profile**: Manage user session and details.
+## ✨ Key Features
+
+### 📊 Project Management
+- Create and manage multiple projects with specific base URLs
+- GitHub repository integration
+- Project sharing with role-based access control (Owner, Editor, Viewer)
+- Project duplication for quick setup
+
+### 📝 User Stories & Features
+- Define user stories with acceptance criteria
+- Group stories into features for better organization
+- Drag-and-drop story organization
+- Import acceptance criteria from text files (.txt, .md)
+- Attach reference documentation via URLs
+
+### 🤖 AI-Powered Automated Testing
+- Intelligent test execution using OpenAI GPT-4
+- Visual validation with Playwright browser automation
+- Screenshot capture for failed tests
+- Detailed reasoning logs for each test result
+- Test history tracking with timestamps
+
+### 📈 Dashboards & Reporting
+- **Global Dashboard**: Overview of all projects and aggregate metrics
+- **Project Dashboard**: Detailed view with statistics (Total, Passed, Failed, Untested)
+- **Test Reports**: Comprehensive test execution reports
+- Real-time test status indicators
+
+### 👥 Team Collaboration
+- Multi-user support with role-based permissions
+- Project sharing with granular access control
+- User profile management
+- Activity tracking
+
+### 🌐 Internationalization
+- Multi-language support (Spanish, English, Portuguese)
+- User-specific language preferences
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Database**: [PostgreSQL](https://www.postgresql.org/)
 - **ORM**: [Prisma](https://www.prisma.io/)
-- **Authentication**: Custom JWT with HTTP-only cookies (Jose + Bcrypt)
-- **Containerization**: Docker support included
+- **Authentication**: Custom JWT with HTTP-only cookies
+- **AI**: [OpenAI GPT-4](https://openai.com/)
+- **Browser Automation**: [Playwright](https://playwright.dev/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Drag & Drop**: [dnd-kit](https://dndkit.com/)
 
 ## 🏁 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- Docker (for the database)
+- Node.js 18+ or 20+
+- Docker and Docker Compose (for database)
+- OpenAI API Key
 
 ### Installation
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd qa-app
-    ```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/JorgeAymar/QA-Master.git
+   cd QA-Master
+   ```
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-3.  **Set up the database:**
-    Ensure Docker is running, then start the PostgreSQL container:
-    ```bash
-    docker-compose up -d
-    ```
+3. **Set up the database:**
+   ```bash
+   docker-compose up -d
+   ```
 
-4.  **Configure Environment Variables:**
-    Create a `.env` file in the root directory (or use the existing one) with:
-    ```env
-    DATABASE_URL="postgresql://user:password@localhost:5432/qa_db?schema=public"
-    JWT_SECRET="your-secure-secret-key"
-    ```
+4. **Configure Environment Variables:**
+   
+   Create a `.env` file in the root directory:
+   ```env
+   # Database
+   DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/DATABASE_NAME?schema=public"
+   
+   # Authentication
+   JWT_SECRET="your-secure-random-string-min-32-characters"
+   
+   # OpenAI
+   OPENAI_API_KEY="your-openai-api-key"
+   
+   # Email (Optional - for user invitations)
+   EMAIL_HOST="smtp.example.com"
+   EMAIL_PORT="587"
+   EMAIL_USER="your-email@example.com"
+   EMAIL_PASSWORD="your-email-password"
+   EMAIL_FROM="noreply@example.com"
+   
+   # Application
+   NODE_ENV="development"
+   ```
 
-5.  **Initialize the Database:**
-    ```bash
-    npx prisma generate
-    npx prisma db push
-    ```
+5. **Initialize the Database:**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
+6. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
 
+7. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-### Running the Application
+### First User Setup
 
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser.
+The first user to register will automatically be assigned the **ADMIN** role with full system access.
 
 ## 📂 Project Structure
 
-- `src/app/(dashboard)`: Authenticated routes (Projects, Profile, Dashboard).
-- `src/app/login` & `src/app/signup`: Public authentication routes.
-- `src/app/actions`: Server Actions for backend logic.
-- `src/lib`: Utilities (Database, Session, Auth).
-- `src/components`: Reusable UI components.
-- `prisma`: Database schema and seed scripts.
+```
+qa-app/
+├── prisma/              # Database schema and migrations
+├── public/              # Static assets
+├── scripts/             # Utility scripts
+├── src/
+│   ├── app/
+│   │   ├── (dashboard)/ # Authenticated routes
+│   │   ├── actions/     # Server actions
+│   │   ├── login/       # Login page
+│   │   └── signup/      # Signup page
+│   ├── components/      # React components
+│   │   ├── features/    # Feature-related components
+│   │   ├── layout/      # Layout components
+│   │   ├── projects/    # Project components
+│   │   ├── stories/     # Story components
+│   │   └── ui/          # UI components
+│   ├── context/         # React contexts
+│   └── lib/             # Utilities and helpers
+└── package.json
+```
 
 ## 🧪 Running Tests
 
-To run the internal QA tests defined in your projects:
-1. Navigate to a Project.
-2. Click **"Run Tests"**.
-3. View results in the dashboard or the **"Report"** page.
+### Automated QA Tests
 
-## 🐳 Production Deployment (VPS)
+1. Navigate to a Project
+2. Click **"Run QA Analysis"** on a story or feature
+3. View real-time test execution progress
+4. Review results with screenshots and detailed logs
 
-This application is optimized for deployment on a VPS using Docker and Docker Compose, with Nginx as a reverse proxy.
+### Test Results
 
-### 1. Prerequisites
+- ✅ **PASS**: Story meets all acceptance criteria
+- ❌ **FAIL**: Story fails validation with detailed reasoning
+- ⏱️ **UNTESTED**: No tests have been run yet
 
-- Docker & Docker Compose installed on the VPS.
-- A domain pointing to your VPS IP (e.g., `qamaster.labshub.cc`).
+## 🚀 Deployment
 
-### 2. Setup
+### Docker Production Deployment
 
-1.  **Clone the repository:**
-    ```bash
-    cd /opt
-    git clone <repository-url> docker-qa-master
-    cd docker-qa-master
-    ```
+1. **Configure production environment:**
+   ```bash
+   cp env.example .env
+   # Edit .env with production values
+   ```
 
-2.  **Configure Environment Variables:**
-    Create a `.env` file based on `env.example`:
-    ```bash
-    cp env.example .env
-    nano .env
-    ```
-    
-    Ensure the following variables are set:
-    ```env
-    # Database (Internal Docker Network)
-    POSTGRES_USER=qa_user
-    POSTGRES_PASSWORD=your_secure_password
-    POSTGRES_DB=qa_db
-    
-    # Application
-    DATABASE_URL="postgresql://qa_user:your_secure_password@postgres:5432/qa_db?schema=public"
-    JWT_SECRET="generate-a-secure-random-string-min-32-chars"
-    APP_PORT=3001
-    NODE_ENV=production
-    ```
+2. **Build and start containers:**
+   ```bash
+   docker-compose up -d --build
+   ```
 
-3.  **Nginx Configuration:**
-    The project includes an `nginx.conf` file. You can use it directly or include it in your main Nginx configuration.
-    
-    Example `nginx.conf` provided in repo proxies `qamaster.labshub.cc` to `http://localhost:3001`.
+3. **Run database migrations:**
+   ```bash
+   docker-compose exec app npx prisma migrate deploy
+   ```
 
-### 3. Deployment
+4. **Access your application:**
+   Navigate to your configured domain
 
-1.  **Build and Start Containers:**
-    ```bash
-    docker-compose up -d --build
-    ```
+### Environment Variables for Production
 
-2.  **Run Migrations:**
-    The application container includes the Prisma CLI. Run migrations manually for the first time:
-    ```bash
-    docker-compose exec app npx prisma migrate deploy
-    ```
-
-3.  **Create Admin User:**
-    Access the application at your domain (e.g., `https://qamaster.labshub.cc`).
-    The first user registered will automatically be assigned the **ADMIN** role.
-
-### 4. Updates
-
-To update the application after pushing changes to the repository:
-
-```bash
-git pull origin main
-docker-compose build --no-cache app
-docker-compose up -d
+```env
+NODE_ENV=production
+DATABASE_URL="postgresql://USER:PASSWORD@postgres:5432/DATABASE_NAME?schema=public"
+JWT_SECRET="generate-secure-random-string-min-32-chars"
+OPENAI_API_KEY="your-production-openai-key"
+APP_PORT=3001
 ```
+
+## 🔒 Security Best Practices
+
+- Never commit `.env` files to version control
+- Use strong, randomly generated JWT secrets (minimum 32 characters)
+- Rotate API keys regularly
+- Use environment-specific credentials
+- Enable HTTPS in production
+- Regularly update dependencies
+
+## 📖 Documentation
+
+For detailed documentation, please visit the [Wiki](https://github.com/JorgeAymar/QA-Master/wiki).
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
-MIT License
+MIT License - see the [LICENSE](LICENSE) file for details.
 
 Copyright (c) 2025 Jorge Aymar
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## 🙏 Acknowledgments
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+- Built with [Next.js](https://nextjs.org/)
+- Powered by [OpenAI](https://openai.com/)
+- UI components inspired by modern design principles
+- Icons by [Lucide](https://lucide.dev/)
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+---
+
+**Version:** 0.6.0  
+**Last Updated:** November 2025
