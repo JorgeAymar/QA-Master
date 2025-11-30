@@ -65,3 +65,16 @@ export async function login(prevState: unknown, formData: FormData) {
 export async function logout() {
     await deleteSession();
 }
+
+export async function updateTheme(theme: 'light' | 'dark') {
+    const { verifySession } = await import('@/lib/session');
+    const session = await verifySession();
+
+    await prisma.user.update({
+        where: { id: session.userId },
+        data: { theme },
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/');
+}

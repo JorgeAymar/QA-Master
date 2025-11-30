@@ -124,18 +124,18 @@ function SortableProjectCard({ project, dict, currentUserId }: { project: Projec
             <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
                 <Link
                     href={`/projects/${project.id}`}
-                    className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-blue-200/60 h-full"
+                    className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-sm p-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-blue-200/60 dark:hover:border-blue-500/60 h-full"
                 >
                     <div className="p-6 flex flex-col h-full">
                         <div className="mb-4 flex items-start justify-between gap-4">
-                            <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                 {project.name}
                             </h3>
                             <div className="flex items-center gap-1">
                                 {isOwner && (
                                     <button
                                         onClick={handleShare}
-                                        className="rounded p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                        className="rounded p-1.5 text-zinc-400 dark:text-zinc-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                         title="Share Project"
                                     >
                                         <Users className="h-4 w-4" />
@@ -144,7 +144,7 @@ function SortableProjectCard({ project, dict, currentUserId }: { project: Projec
                                 <button
                                     onClick={handleDuplicateClick}
                                     disabled={isDuplicating || !isOwner}
-                                    className={`rounded p-1.5 transition-colors ${isOwner ? 'text-slate-400 hover:bg-blue-50 hover:text-blue-600' : 'text-slate-200 cursor-not-allowed'} disabled:opacity-50`}
+                                    className={`rounded p-1.5 transition-colors ${isOwner ? 'text-zinc-400 dark:text-zinc-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400' : 'text-zinc-200 dark:text-zinc-700 cursor-not-allowed'} disabled:opacity-50`}
                                     title={isOwner ? "Duplicate Project" : undefined}
                                 >
                                     <Copy className="h-4 w-4" />
@@ -152,7 +152,7 @@ function SortableProjectCard({ project, dict, currentUserId }: { project: Projec
                                 <button
                                     onClick={handleDeleteClick}
                                     disabled={isDeleting || !isOwner}
-                                    className={`rounded p-1.5 transition-colors ${isOwner ? 'text-slate-400 hover:bg-red-50 hover:text-red-600' : 'text-slate-200 cursor-not-allowed'} disabled:opacity-50`}
+                                    className={`rounded p-1.5 transition-colors ${isOwner ? 'text-zinc-400 dark:text-zinc-500 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400' : 'text-zinc-200 dark:text-zinc-700 cursor-not-allowed'} disabled:opacity-50`}
                                     title={isOwner ? dict.common.delete : undefined}
                                 >
                                     <Trash2 className="h-4 w-4" />
@@ -161,14 +161,14 @@ function SortableProjectCard({ project, dict, currentUserId }: { project: Projec
                         </div>
 
                         <div className="mb-6 space-y-3 flex-1">
-                            <div className="flex items-start gap-2 text-sm text-slate-600">
-                                <FileText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+                            <div className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-300">
+                                <FileText className="h-4 w-4 text-zinc-400 mt-0.5 shrink-0" />
                                 <p className="leading-relaxed line-clamp-2">
                                     {project.description || dict.project.noDescription}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <Globe className="h-4 w-4 text-slate-400" />
+                            <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                <Globe className="h-4 w-4 text-zinc-400" />
                                 <span className="truncate">{project.baseUrl}</span>
                             </div>
                             {project.githubRepo && (
@@ -177,17 +177,17 @@ function SortableProjectCard({ project, dict, currentUserId }: { project: Projec
                                         href={`https://github.com/${project.githubRepo}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 hover:underline"
+                                        className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <Github className="h-4 w-4 text-slate-400" />
+                                        <Github className="h-4 w-4 text-zinc-400" />
                                         <span className="truncate">{project.githubRepo}</span>
                                     </a>
                                 </object>
                             )}
                         </div>
 
-                        <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col gap-3">
+                        <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-3">
                             <div className="flex flex-wrap items-center gap-2">
                                 <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
                                     <FileText className="h-3.5 w-3.5" />

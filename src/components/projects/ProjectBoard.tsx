@@ -304,17 +304,17 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                                 </div>
                             </SortableContext>
                             {(!storiesByFeature[feature.id] || storiesByFeature[feature.id].length === 0) && (
-                                <p className="text-sm text-slate-400 italic">{dict.project.noStories}</p>
+                                <p className="text-sm text-zinc-400 dark:text-zinc-500 italic">{dict.project.noStories}</p>
                             )}
                         </SortableFeatureGroup>
                     ))}
                 </SortableContext>
 
                 {uncategorizedStories.length > 0 && (
-                    <DroppableArea id="uncategorized" className="rounded-lg border border-slate-200 bg-white p-4">
+                    <DroppableArea id="uncategorized" className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-sm p-4">
                         <div className="mb-4 flex items-center gap-2">
-                            <h3 className="text-lg font-semibold text-slate-900">{dict.project.uncategorized}</h3>
-                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{dict.project.uncategorized}</h3>
+                            <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">
                                 {uncategorizedStories.length} {dict.project.storiesCount}
                             </span>
                         </div>
@@ -332,12 +332,12 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                 )}
 
                 {stories.length === 0 && features.length === 0 && (
-                    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-16 text-center">
-                        <div className="rounded-full bg-slate-50 p-4 mb-4">
-                            <LayoutDashboard className="h-8 w-8 text-slate-400" />
+                    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-16 text-center">
+                        <div className="rounded-full bg-zinc-50 dark:bg-zinc-800 p-4 mb-4">
+                            <LayoutDashboard className="h-8 w-8 text-zinc-400 dark:text-zinc-500" />
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-900">{dict.project.startFeatureTitle}</h3>
-                        <p className="mt-1 text-sm text-slate-500 max-w-sm mx-auto">
+                        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{dict.project.startFeatureTitle}</h3>
+                        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
                             {dict.project.startFeatureDesc}
                         </p>
                     </div>
@@ -352,7 +352,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                 ) : activeFeature ? (
                     <div className="opacity-80 rotate-2 scale-105 cursor-grabbing">
                         <FeatureGroup feature={activeFeature} projectId={projectId} storyCount={storiesByFeature[activeFeature.id]?.length || 0} dict={dict}>
-                            <div className="h-20 bg-slate-50 rounded border border-dashed border-slate-200"></div>
+                            <div className="h-20 bg-zinc-50 dark:bg-zinc-900 rounded border border-dashed border-zinc-200 dark:border-zinc-800"></div>
                         </FeatureGroup>
                     </div>
                 ) : null}

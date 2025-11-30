@@ -5,10 +5,10 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || 'dummy-key', // Prevent crash if missing, handle later
 });
 
-export async function evaluateStoryWithAI(url: string, storyTitle: string, criteria: string) {
+export async function evaluateStoryWithAI(url: string, storyTitle: string, criteria: string, attachmentsContext?: string, language: string = 'es', headless: boolean = true) {
     let browser = null;
     try {
-        browser = await chromium.launch();
+        browser = await chromium.launch({ headless });
         const page = await browser.newPage();
 
         console.log(`Navigating to ${url}...`);
@@ -56,6 +56,11 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
 
             User Story: "${storyTitle}"
             Acceptance Criteria: "${criteria}"
+
+            ${attachmentsContext ? `
+            Attached Files Content:
+            ${attachmentsContext}
+            ` : ''}
 
             Current Page Content (Truncated):
             ${bodyText.substring(0, 3000)}...
@@ -108,7 +113,7 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
                     logs.push(`Executed: Filled ${decision.selector} with '${decision.value}'`);
                 }
                 // Wait for potential navigation or DOM update
-                await page.waitForTimeout(2000);
+                await page.waitForTimeout(headless ? 2000 : 4000);
             } catch (actionError: unknown) {
                 const actionErrorMessage = actionError instanceof Error ? actionError.message : String(actionError);
                 logs.push(`Action Failed: ${actionErrorMessage}`);
@@ -135,11 +140,12 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
         Instructions:
         1. Evaluate STRICTLY if the Acceptance Criteria are met based on the final state and history.
         2. If ANY criteria is unmet, return FAIL.
+        3. Provide the "reason" in the following language: "${language}".
 
         Return JSON:
         {
             "status": "PASS" | "FAIL",
-            "reason": "Final verdict explanation"
+            "reason": "Final verdict explanation in ${language}"
         }
         `;
 

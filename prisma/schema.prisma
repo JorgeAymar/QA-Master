@@ -19,6 +19,7 @@ model User {
   language  String   @default("es")
   role      String   @default("USER")
   isActive  Boolean  @default(true)
+  theme     String   @default("light")
   projectMemberships ProjectMember[]
   
   // Tracking relations
@@ -102,6 +103,18 @@ model UserStory {
   createdBy   User?   @relation("CreatedStories", fields: [createdById], references: [id])
   updatedById String?
   updatedBy   User?   @relation("UpdatedStories", fields: [updatedById], references: [id])
+  attachments StoryAttachment[]
+}
+
+model StoryAttachment {
+  id        String    @id @default(cuid())
+  storyId   String
+  filename  String
+  path      String
+  mimeType  String
+  size      Int
+  createdAt DateTime  @default(now())
+  story     UserStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
 }
 
 model TestRun {

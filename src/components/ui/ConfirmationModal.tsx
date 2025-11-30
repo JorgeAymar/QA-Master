@@ -11,6 +11,7 @@ interface ConfirmationModalProps {
     confirmText?: string;
     cancelText?: string;
     isDangerous?: boolean;
+    extraContent?: React.ReactNode;
 }
 
 export function ConfirmationModal({
@@ -22,6 +23,7 @@ export function ConfirmationModal({
     confirmText = 'Confirm',
     cancelText = 'Cancel',
     isDangerous = false,
+    extraContent,
 }: ConfirmationModalProps) {
     if (!isOpen) return null;
 
@@ -47,6 +49,11 @@ export function ConfirmationModal({
                     <p className="text-slate-600 leading-relaxed">
                         {message}
                     </p>
+                    {extraContent && (
+                        <div className="mt-4">
+                            {extraContent}
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center justify-end gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4">

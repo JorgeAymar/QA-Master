@@ -5,6 +5,7 @@ import { getDictionary } from '@/lib/dictionaries';
 import { prisma } from '@/lib/prisma';
 import { TestExecutionProvider } from '@/context/TestExecutionContext';
 import { AnalysisStatusBar } from '@/components/ui/AnalysisStatusBar';
+import { ThemeProvider } from '@/context/ThemeContext';
 
 export default async function DashboardLayout({
     children,
@@ -21,20 +22,23 @@ export default async function DashboardLayout({
         select: {
             role: true,
             name: true,
-            email: true
+            email: true,
+            theme: true
         }
     });
 
     return (
-        <TestExecutionProvider>
-            <div className="flex h-screen bg-slate-50">
-                <Sidebar dict={dict} user={user} />
-                <div className="flex flex-1 flex-col overflow-hidden">
-                    <Header dict={dict} />
-                    <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <ThemeProvider initialTheme={(user?.theme as 'light' | 'dark') || 'light'}>
+            <TestExecutionProvider>
+                <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950">
+                    <Sidebar dict={dict} user={user} />
+                    <div className="flex flex-1 flex-col overflow-hidden">
+                        <Header dict={dict} />
+                        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+                    </div>
+                    <AnalysisStatusBar />
                 </div>
-                <AnalysisStatusBar />
-            </div>
-        </TestExecutionProvider>
+            </TestExecutionProvider>
+        </ThemeProvider>
     );
 }

@@ -36,7 +36,7 @@ export default async function ProjectsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-slate-900">{dict.dashboard.projectsTitle}</h1>
+                <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{dict.dashboard.projectsTitle}</h1>
                 <Link
                     href="/projects/new"
                     className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"

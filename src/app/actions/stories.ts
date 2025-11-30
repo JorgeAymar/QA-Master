@@ -59,7 +59,11 @@ export async function getProjectStories(projectId: string) {
             },
             feature: true,
             createdBy: { select: { name: true } },
-            updatedBy: { select: { name: true } }
+            updatedBy: { select: { name: true } },
+            attachments: true,
+            _count: {
+                select: { testResults: true }
+            }
         },
         orderBy: {
             order: 'asc'

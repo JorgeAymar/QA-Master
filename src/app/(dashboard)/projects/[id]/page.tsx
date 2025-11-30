@@ -37,6 +37,14 @@ interface StoryWithResults {
     feature?: Feature | null;
     createdAt: Date;
     updatedAt: Date;
+    attachments?: {
+        id: string;
+        filename: string;
+        path: string;
+    }[];
+    _count?: {
+        testResults: number;
+    };
 }
 
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ id: string }> }) {

@@ -3,14 +3,13 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: qa_master_postgres
+    container_name: qamaster_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-qa_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-qa_db}
-    # ports mapping removed to keep PostgreSQL internal to Docker network
-    # ports:
-    #   - "${POSTGRES_PORT:-5432}:5432"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -25,21 +24,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: qa-master
+      target: deps
+    container_name: qamaster_app
     ports:
       - "${APP_PORT:-3000}:3000"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://qa_user:qa_password@qamaster_db:5432/qa_db?schema=public
       - JWT_SECRET=${JWT_SECRET}
-      - NODE_ENV=${NODE_ENV:-production}
+      - NODE_ENV=development
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - qa_network
-    # Uncomment to run migrations on startup (optional)
-    # command: sh -c "npx prisma migrate deploy && node server.js"
+    command: sh -c "npx prisma generate && npm run dev"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - ./public/uploads:/app/public/uploads
 
 networks:
   qa_network:

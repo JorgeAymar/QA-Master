@@ -4,7 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { logActivity } from '@/lib/activity';
 import { evaluateStoryWithAI } from '@/lib/ai-testing';
-import { verifySession } from '@/lib/session';
+import { verifySession, getUserLanguage } from '@/lib/session';
+import fs from 'fs/promises';
+import path from 'path';
 
 export async function runTests(projectId: string) {
     const project = await prisma.project.findUnique({
@@ -71,12 +73,13 @@ export async function runTests(projectId: string) {
     revalidatePath(`/projects/${projectId}`);
 }
 
-export async function runStoryTest(projectId: string, storyId: string) {
+export async function runStoryTest(projectId: string, storyId: string, headless: boolean = true) {
     const project = await prisma.project.findUnique({
         where: { id: projectId },
         include: {
             stories: {
-                where: { id: storyId }
+                where: { id: storyId },
+                include: { attachments: true }
             }
         },
     });
@@ -98,8 +101,35 @@ export async function runStoryTest(projectId: string, storyId: string) {
 
     await logActivity(projectId, 'EXECUTE', 'STORY', story.title);
 
+    // Read Attachments
+    let attachmentsContext = '';
+    if (story.attachments && story.attachments.length > 0) {
+        try {
+            const fileContents = await Promise.all(story.attachments.map(async (att) => {
+                try {
+                    // Construct absolute path. Assuming att.path is relative to public or absolute?
+                    // Based on upload route: /uploads/${storyId}/${filename}
+                    // And saved as /uploads/${storyId}/${filename} in DB (relative to public usually for serving)
+                    // But for server side reading we need system path.
+                    // The DB path seems to be the URL path (e.g. /uploads/...).
+                    // So we need to prepend process.cwd() + /public
+                    const filePath = path.join(process.cwd(), 'public', att.path);
+                    const content = await fs.readFile(filePath, 'utf-8');
+                    return `File: ${att.filename}\nContent:\n${content}\n---`;
+                } catch (err) {
+                    console.error(`Failed to read attachment ${att.filename}:`, err);
+                    return `File: ${att.filename}\nContent: (Error reading file)\n---`;
+                }
+            }));
+            attachmentsContext = fileContents.join('\n\n');
+        } catch (error) {
+            console.error('Error processing attachments:', error);
+        }
+    }
+
     try {
-        const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria);
+        const language = await getUserLanguage();
+        const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria, attachmentsContext, language, headless);
 
         await prisma.testResult.create({
             data: {
