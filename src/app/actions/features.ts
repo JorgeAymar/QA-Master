@@ -43,9 +43,17 @@ export async function deleteFeature(featureId: string, projectId: string) {
     const feature = await prisma.feature.findUnique({ where: { id: featureId } });
 
     if (feature) {
-        await prisma.feature.delete({
-            where: { id: featureId },
-        });
+        // Delete all stories associated with this feature first (simulating cascade)
+        // We use a transaction to ensure both happen or neither
+        await prisma.$transaction([
+            prisma.userStory.deleteMany({
+                where: { featureId: featureId }
+            }),
+            prisma.feature.delete({
+                where: { id: featureId },
+            })
+        ]);
+
         await logActivity(projectId, 'DELETE', 'FEATURE', feature.name);
     }
 

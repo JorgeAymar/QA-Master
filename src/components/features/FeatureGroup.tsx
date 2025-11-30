@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { Dictionary } from '@/lib/dictionaries';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { format } from 'date-fns';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableStoryCard } from '@/components/stories/SortableStoryCard';
+import { ArrowDownAZ } from 'lucide-react';
 
 interface Feature {
     id: string;
@@ -25,17 +28,20 @@ interface FeatureGroupProps {
     };
     projectId: string;
     storyCount: number;
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    stories?: any[]; // Using any[] to avoid circular dep issues or complex type duplication for now
     dict: Dictionary;
     dragHandleProps?: any;
     userRole?: string;
+    githubRepo?: string | null;
 }
 
-export function FeatureGroup({ feature, projectId, storyCount, children, dict, dragHandleProps, userRole = 'READ' }: FeatureGroupProps) {
+export function FeatureGroup({ feature, projectId, storyCount, children, stories = [], dict, dragHandleProps, userRole = 'READ', githubRepo }: FeatureGroupProps) {
     const router = useRouter();
     const [isExpanded, setIsExpanded] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isSortedAlphabetically, setIsSortedAlphabetically] = useState(false);
     const [name, setName] = useState(feature.name);
 
     const canEdit = userRole === 'ADMIN' || userRole === 'FULL' || userRole === 'OWNER';
@@ -116,6 +122,13 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
                             </div>
                             {canEdit && (
                                 <>
+                                    <button
+                                        onClick={() => setIsSortedAlphabetically(!isSortedAlphabetically)}
+                                        className={`rounded p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${isSortedAlphabetically ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-zinc-400 dark:text-zinc-500'}`}
+                                        title="Ordenar alfabéticamente"
+                                    >
+                                        <ArrowDownAZ className="h-4 w-4" />
+                                    </button>
                                     <Link
                                         href={`/projects/${projectId}/stories/new?featureId=${feature.id}`}
                                         className="ml-2 rounded p-1 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400"
@@ -149,7 +162,31 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
 
             {isExpanded && (
                 <div className="space-y-3 pl-4 border-l-2 border-zinc-200 dark:border-zinc-800 p-4">
-                    {children}
+                    {children ? children : (
+                        <SortableContext
+                            items={stories.map(s => s.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <div className="grid grid-cols-1 gap-4 min-h-[60px]">
+                                {(isSortedAlphabetically
+                                    ? [...stories].sort((a, b) => a.title.localeCompare(b.title))
+                                    : stories
+                                ).map(story => (
+                                    <SortableStoryCard
+                                        key={story.id}
+                                        story={story}
+                                        projectId={projectId}
+                                        dict={dict}
+                                        githubRepo={githubRepo}
+                                        userRole={userRole}
+                                    />
+                                ))}
+                            </div>
+                        </SortableContext>
+                    )}
+                    {stories.length === 0 && !children && (
+                        <p className="text-sm text-zinc-400 dark:text-zinc-500 italic">{dict.project.noStories}</p>
+                    )}
                 </div>
             )}
 
@@ -163,7 +200,7 @@ export function FeatureGroup({ feature, projectId, storyCount, children, dict, d
                 title={dict.project.deleteFeature}
                 message={
                     <span>
-                        {dict.project.deleteFeature} <strong>"{feature.name}"</strong>?
+                        {dict.project.deleteFeatureConfirm.replace('{featureName}', feature.name)}
                         <br />
                         <span className="text-sm text-slate-500 mt-2 block">
                             {dict.common.cannotUndo}

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ShareProjectModal } from '@/components/projects/ShareProjectModal';
-import { Users, Pencil } from 'lucide-react';
+import { ImportStoriesModal } from '@/components/projects/ImportStoriesModal';
+import { Users, Pencil, Upload } from 'lucide-react';
 
 interface ProjectHeaderActionsProps {
     projectId: string;
@@ -15,11 +17,20 @@ interface ProjectHeaderActionsProps {
 
 export function ProjectHeaderActions({ projectId, projectName, dict, canEdit, isOwner }: ProjectHeaderActionsProps) {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     if (!canEdit) return null;
 
     return (
         <div className="flex items-center gap-2">
+            <button
+                onClick={() => setIsImportModalOpen(true)}
+                className="flex items-center justify-center rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 transition-colors"
+                title={dict.project.import}
+            >
+                <Upload className="h-4 w-4" />
+            </button>
+
             <Link
                 href={`/projects/${projectId}/edit`}
                 className="flex items-center justify-center rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 transition-colors"
@@ -41,6 +52,12 @@ export function ProjectHeaderActions({ projectId, projectName, dict, canEdit, is
                 projectName={projectName}
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
+                dict={dict}
+            />
+            <ImportStoriesModal
+                projectId={projectId}
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
                 dict={dict}
             />
         </div>

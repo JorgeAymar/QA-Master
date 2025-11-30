@@ -6,6 +6,7 @@ import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } 
 import { CSS } from '@dnd-kit/utilities';
 import { FeatureGroup } from '@/components/features/FeatureGroup';
 import { StoryCard } from '@/components/stories/StoryCard';
+import { SortableStoryCard } from '@/components/stories/SortableStoryCard';
 import { moveStory, reorderStories } from '@/app/actions/stories';
 import { reorderFeatures } from '@/app/actions/features';
 import { Dictionary } from '@/lib/dictionaries';
@@ -290,23 +291,11 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
                             feature={feature}
                             projectId={projectId}
                             storyCount={storiesByFeature[feature.id]?.length || 0}
+                            stories={storiesByFeature[feature.id] || []}
                             dict={dict}
                             userRole={userRole}
-                        >
-                            <SortableContext
-                                items={storiesByFeature[feature.id]?.map(s => s.id) || []}
-                                strategy={verticalListSortingStrategy}
-                            >
-                                <div className="grid grid-cols-1 gap-4 min-h-[60px]">
-                                    {storiesByFeature[feature.id]?.map(story => (
-                                        <SortableStoryCard key={story.id} story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} userRole={userRole} />
-                                    ))}
-                                </div>
-                            </SortableContext>
-                            {(!storiesByFeature[feature.id] || storiesByFeature[feature.id].length === 0) && (
-                                <p className="text-sm text-zinc-400 dark:text-zinc-500 italic">{dict.project.noStories}</p>
-                            )}
-                        </SortableFeatureGroup>
+                            githubRepo={githubRepo}
+                        />
                     ))}
                 </SortableContext>
 
@@ -361,23 +350,7 @@ export function ProjectBoard({ initialStories, features: initialFeatures, projec
     );
 }
 
-function SortableStoryCard({ story, projectId, dict, githubRepo, userRole }: { story: StoryWithResults, projectId: string, dict: Dictionary, githubRepo?: string | null, userRole: string }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-        id: story.id,
-        disabled: userRole === 'READ' // Disable dragging if read-only
-    });
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
-    return (
-        <div ref={setNodeRef} style={style} {...listeners} {...attributes} className={isDragging ? 'opacity-30' : ''}>
-            <StoryCard story={story} projectId={projectId} dict={dict} githubRepo={githubRepo} userRole={userRole} />
-        </div>
-    );
-}
 
 function SortableFeatureGroup({ id, children, userRole, ...props }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({

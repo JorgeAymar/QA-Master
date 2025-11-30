@@ -5,10 +5,21 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || 'dummy-key', // Prevent crash if missing, handle later
 });
 
-export async function evaluateStoryWithAI(url: string, storyTitle: string, criteria: string, attachmentsContext?: string, language: string = 'es', headless: boolean = true) {
+export async function evaluateStoryWithAI(url: string, storyTitle: string, criteria: string, attachmentsContext?: string, language: string = 'es', headless: boolean = true, globalContext?: string) {
     let browser = null;
     try {
-        browser = await chromium.launch({ headless });
+        try {
+            browser = await chromium.launch({ headless });
+        } catch (launchError: any) {
+            console.warn('Failed to launch browser, retrying in headless mode:', launchError.message);
+            // Fallback to headless if headed fails (e.g. no X server)
+            if (!headless) {
+                browser = await chromium.launch({ headless: true });
+            } else {
+                throw launchError;
+            }
+        }
+
         const page = await browser.newPage();
 
         console.log(`Navigating to ${url}...`);
@@ -60,6 +71,11 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
             ${attachmentsContext ? `
             Attached Files Content:
             ${attachmentsContext}
+            ` : ''}
+
+            ${globalContext ? `
+            Global Project Context (Credentials/Environment Info):
+            ${globalContext}
             ` : ''}
 
             Current Page Content (Truncated):

@@ -31,7 +31,7 @@ export async function runTests(projectId: string) {
 
     try {
         for (const story of project.stories) {
-            const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria);
+            const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria, undefined, 'es', true, project.testContext || undefined);
 
             await prisma.testResult.create({
                 data: {
@@ -129,7 +129,7 @@ export async function runStoryTest(projectId: string, storyId: string, headless:
 
     try {
         const language = await getUserLanguage();
-        const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria, attachmentsContext, language, headless);
+        const result = await evaluateStoryWithAI(project.baseUrl, story.title, story.acceptanceCriteria, attachmentsContext, language, headless, project.testContext || undefined);
 
         await prisma.testResult.create({
             data: {

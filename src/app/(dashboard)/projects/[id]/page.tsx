@@ -10,6 +10,7 @@ import { FeatureGroup } from '@/components/features/FeatureGroup';
 import { StoryCard } from '@/components/stories/StoryCard';
 import { ProjectBoard } from '@/components/projects/ProjectBoard';
 import { ShareProjectModal } from '@/components/projects/ShareProjectModal';
+import { ProjectTestContext } from '@/components/projects/ProjectTestContext';
 import { getUserLanguage, verifySession } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 import { format } from 'date-fns';
@@ -229,7 +230,14 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
 
                         </div>
 
-
+                        <div className="w-full md:w-96 mt-4 md:mt-0">
+                            <ProjectTestContext
+                                projectId={project.id}
+                                initialContext={project.testContext}
+                                canEdit={canEdit}
+                                dict={dict}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -423,3 +423,16 @@ export async function deleteProject(projectId: string) {
     await logActivity(projectId, 'DELETE', 'PROJECT', project.name);
     revalidatePath('/projects');
 }
+
+export async function updateProjectContext(projectId: string, context: string) {
+    if (!await checkPermission(projectId, 'FULL')) {
+        throw new Error('Unauthorized');
+    }
+
+    await prisma.project.update({
+        where: { id: projectId },
+        data: { testContext: context }
+    });
+
+    revalidatePath(`/projects/${projectId}`);
+}
