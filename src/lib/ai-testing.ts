@@ -6,6 +6,40 @@ const openai = new OpenAI({
 });
 
 export async function evaluateStoryWithAI(url: string, storyTitle: string, criteria: string, attachmentsContext?: string, language: string = 'es', headless: boolean = true, globalContext?: string) {
+
+    const dict = {
+        es: {
+            navigatedTo: 'Navegado a',
+            step: 'Paso',
+            decidedTo: 'Decisión',
+            executed: 'Ejecutado',
+            clicked: 'Click en',
+            filled: 'Llenado de',
+            with: 'con',
+            actionFailed: 'Acción Fallida',
+            error: 'Error',
+            systemError: 'Error del Sistema',
+            finalVerdict: 'Veredicto Final',
+            promptLang: 'Spanish'
+        },
+        en: {
+            navigatedTo: 'Navigated to',
+            step: 'Step',
+            decidedTo: 'Decided to',
+            executed: 'Executed',
+            clicked: 'Clicked',
+            filled: 'Filled',
+            with: 'with',
+            actionFailed: 'Action Failed',
+            error: 'Error',
+            systemError: 'System Error',
+            finalVerdict: 'Final Verdict',
+            promptLang: 'English'
+        }
+    };
+
+    const t = dict[language as keyof typeof dict] || dict.es;
+
     let browser = null;
     try {
         try {
@@ -28,12 +62,12 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
         if (!response?.ok()) {
             return {
                 status: 'FAIL',
-                logs: `Error: Could not navigate to ${url}. Status: ${response?.status()}`,
+                logs: `${t.error}: Could not navigate to ${url}. Status: ${response?.status()}`,
                 screenshot: null
             };
         }
 
-        const logs = [`Navigated to ${url}`];
+        const logs = [`${t.navigatedTo} ${url}`];
         let stepCount = 0;
         const MAX_STEPS = 5;
         let finalStatus = 'FAIL';
@@ -92,13 +126,14 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
             2. If you see a login form and the story implies logging in, look for credentials in the User Story text or use generic ones if implied (e.g. "admin"/"password").
             3. If the story is fully verified or failed beyond recovery, choose "finish".
             4. If you need to fill a field, use "fill". If you need to click, use "click".
+            5. IMPORTANT: Provide the "reason" field in ${t.promptLang}.
 
             Return JSON:
             {
                 "action": "click" | "fill" | "finish",
                 "selector": "css selector to target element (prefer id, name, or robust attributes)",
                 "value": "text to fill (only for fill action)",
-                "reason": "Why this action?"
+                "reason": "Why this action? (Write this in ${t.promptLang})"
             }
             `;
 
@@ -113,7 +148,7 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
             });
 
             const decision = JSON.parse(completion.choices[0].message.content || '{}');
-            logs.push(`Step ${stepCount}: Decided to ${decision.action} (${decision.reason})`);
+            logs.push(`${t.step} ${stepCount}: ${t.decidedTo} ${decision.action} (${decision.reason})`);
 
             if (decision.action === 'finish') {
                 break;
@@ -123,16 +158,16 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
             try {
                 if (decision.action === 'click') {
                     await page.click(decision.selector, { timeout: 5000 });
-                    logs.push(`Executed: Clicked ${decision.selector}`);
+                    logs.push(`${t.executed}: ${t.clicked} ${decision.selector}`);
                 } else if (decision.action === 'fill') {
                     await page.fill(decision.selector, decision.value, { timeout: 5000 });
-                    logs.push(`Executed: Filled ${decision.selector} with '${decision.value}'`);
+                    logs.push(`${t.executed}: ${t.filled} ${decision.selector} ${t.with} '${decision.value}'`);
                 }
                 // Wait for potential navigation or DOM update
                 await page.waitForTimeout(headless ? 2000 : 4000);
             } catch (actionError: unknown) {
                 const actionErrorMessage = actionError instanceof Error ? actionError.message : String(actionError);
-                logs.push(`Action Failed: ${actionErrorMessage}`);
+                logs.push(`${t.actionFailed}: ${actionErrorMessage}`);
                 // If action fails, we might want to stop or try again. Let's continue to see if AI can recover or finish.
             }
         }
@@ -156,12 +191,12 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
         Instructions:
         1. Evaluate STRICTLY if the Acceptance Criteria are met based on the final state and history.
         2. If ANY criteria is unmet, return FAIL.
-        3. Provide the "reason" in the following language: "${language}".
+        3. Provide the "reason" in the following language: "${t.promptLang}".
 
         Return JSON:
         {
             "status": "PASS" | "FAIL",
-            "reason": "Final verdict explanation in ${language}"
+            "reason": "Final verdict explanation in ${t.promptLang}"
         }
         `;
 
@@ -177,7 +212,7 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
 
         return {
             status: finalStatus,
-            logs: logs.join('\n') + `\n\nFinal Verdict: ${finalReason}`,
+            logs: logs.join('\n') + `\n\n${t.finalVerdict}: ${finalReason}`,
             screenshot: `data:image/png;base64,${finalScreenshotBase64}`
         };
 
@@ -186,10 +221,11 @@ export async function evaluateStoryWithAI(url: string, storyTitle: string, crite
         const errorMessage = error instanceof Error ? error.message : String(error);
         return {
             status: 'FAIL',
-            logs: `System Error: ${errorMessage}`,
+            logs: `${t.systemError}: ${errorMessage}`,
             screenshot: null
         };
     } finally {
         if (browser) await browser.close();
     }
 }
+
