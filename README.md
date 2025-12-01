@@ -163,28 +163,84 @@ qa-app/
 - ❌ **FAIL**: Story fails validation with detailed reasoning
 - ⏱️ **UNTESTED**: No tests have been run yet
 
-## 🚀 Deployment
+## 🚀 Deployment & Installation
 
-### Docker Production Deployment
+### 📦 Installation from Scratch (Server/VPS)
 
-1. **Configure production environment:**
-   ```bash
-   cp env.example .env
-   # Edit .env with production values
-   ```
+1.  **Clone the repository:**
+    ```bash
+    cd /opt
+    git clone https://github.com/JorgeAymar/QA-Master.git docker-qa-master
+    cd docker-qa-master
+    ```
 
-2. **Build and start containers:**
-   ```bash
-   docker-compose up -d --build
-   ```
+2.  **Configure Environment Variables:**
+    Create a `.env` file with your production credentials.
+    ```bash
+    nano .env
+    ```
+    
+    **Template:**
+    ```env
+    # Database
+    DATABASE_URL="postgresql://qa_user:YOUR_SECURE_PASSWORD@qamaster_db:5432/qa_db?schema=public"
+    POSTGRES_USER=qa_user
+    POSTGRES_PASSWORD=YOUR_SECURE_PASSWORD
+    POSTGRES_DB=qa_db
+    POSTGRES_PORT=5435  # Change if 5432 is taken
 
-3. **Run database migrations:**
-   ```bash
-   docker-compose exec app npx prisma migrate deploy
-   ```
+    # Authentication
+    JWT_SECRET="generate-secure-random-string-min-32-chars"
 
-4. **Access your application:**
-   Navigate to your configured domain
+    # OpenAI
+    OPENAI_API_KEY="your-openai-api-key"
+
+    # Application
+    NODE_ENV="production"
+    APP_PORT=3001 # Change if 3000 is taken
+    ```
+
+3.  **Start the Application:**
+    ```bash
+    docker compose up -d --build
+    ```
+
+4.  **Run Database Migrations:**
+    ```bash
+    docker compose exec app npx prisma migrate deploy
+    ```
+
+5.  **Verify Status:**
+    ```bash
+    docker compose logs -f app
+    ```
+
+### 🔄 Updating the Software
+
+To update the application to the latest version without losing data:
+
+1.  **Pull the latest changes:**
+    ```bash
+    cd /opt/docker-qa-master
+    git pull
+    ```
+
+2.  **Rebuild and Restart:**
+    ```bash
+    docker compose down
+    docker compose up -d --build
+    ```
+
+3.  **Apply Database Migrations:**
+    ```bash
+    docker compose exec app npx prisma migrate deploy
+    ```
+
+4.  **Troubleshooting:**
+    If you encounter build errors (e.g., Turbopack memory issues), you can force a Webpack build by updating the `command` in `docker-compose.yml`:
+    ```yaml
+    command: sh -c "npx prisma generate && npx next build --webpack && npm start"
+    ```
 
 ### Environment Variables for Production
 
@@ -202,7 +258,7 @@ APP_PORT=3001
 - Use strong, randomly generated JWT secrets (minimum 32 characters)
 - Rotate API keys regularly
 - Use environment-specific credentials
-- Enable HTTPS in production
+- Enable HTTPS in production (recommended to use Nginx as a reverse proxy)
 - Regularly update dependencies
 
 ## 📖 Documentation
