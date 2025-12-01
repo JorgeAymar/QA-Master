@@ -2,6 +2,8 @@ import { getUserLanguage } from '@/lib/session';
 import { getDictionary } from '@/lib/dictionaries';
 import { NewProjectForm } from '@/components/projects/NewProjectForm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewProjectPage() {
     const lang = await getUserLanguage();
     const dict = getDictionary(lang);
