@@ -22,25 +22,28 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: deps
+      target: runner
     container_name: qamaster_app
     ports:
       - "${APP_PORT:-3000}:3000"
     environment:
-      - DATABASE_URL=postgresql://qa_user:qa_password@qamaster_db:5432/qa_db?schema=public
+      - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - NODE_ENV=development
+      - NODE_ENV=production
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - qa_network
-    command: sh -c "npx prisma generate && npm run dev"
     volumes:
       - ./:/app
       - /app/node_modules
       - ./public/uploads:/app/public/uploads
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
 networks:
   qa_network:
