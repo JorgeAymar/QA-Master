@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
     onConfirm: () => void;
     onCancel: () => void;
     variant?: 'danger' | 'warning' | 'info';
+    extraContent?: React.ReactNode;
 }
 
 export function ConfirmDialog({

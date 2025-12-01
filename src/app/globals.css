@@ -26,3 +26,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Print-specific styles for PDF generation */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide UI elements during print */
+  [data-html2canvas-ignore] {
+    display: none !important;
+  }
+
+  /* Avoid page breaks inside content blocks */
+  [data-pdf-section] {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

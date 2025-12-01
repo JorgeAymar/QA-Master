@@ -65,9 +65,38 @@ export async function POST(
             if (isDocx) {
                 try {
                     const buffer = Buffer.from(await file.arrayBuffer());
-                    const result = await mammoth.extractRawText({ buffer });
-                    content = result.value;
-                    console.log(`[Import] Extracted text from docx: ${file.name} (${content.length} chars)`);
+                    const result = await mammoth.convertToHtml({ buffer });
+                    const html = result.value;
+
+                    // Convert HTML to structured text
+                    content = html
+                        // Replace list items with bullet points
+                        .replace(/<li>/g, '\n• ')
+                        .replace(/<\/li>/g, '')
+                        .replace(/<ul>/g, '\n')
+                        .replace(/<\/ul>/g, '\n')
+                        .replace(/<ol>/g, '\n')
+                        .replace(/<\/ol>/g, '\n')
+                        // Replace paragraphs and headers with double newlines
+                        .replace(/<\/p>/g, '\n\n')
+                        .replace(/<\/div>/g, '\n\n')
+                        .replace(/<\/h[1-6]>/g, '\n\n')
+                        // Replace line breaks
+                        .replace(/<br\s*\/?>/g, '\n')
+                        // Strip remaining tags
+                        .replace(/<[^>]+>/g, '')
+                        // Decode entities
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        // Clean up excessive whitespace
+                        .replace(/\n\s+\n/g, '\n\n')
+                        .replace(/\n{3,}/g, '\n\n')
+                        .trim();
+
+                    console.log(`[Import] Extracted structured text from docx: ${file.name} (${content.length} chars)`);
                     if (result.messages.length > 0) {
                         console.log(`[Import] Mammoth messages:`, result.messages);
                     }
@@ -129,7 +158,9 @@ export async function POST(
                     featureId: feature.id,
                     title: storyTitle,
                     acceptanceCriteria: content,
-                    status: 'PENDING'
+                    status: 'PENDING',
+                    createdById: session.userId,
+                    updatedById: session.userId
                 }
             });
             console.log(`[Import] Story created: ${story.id}`);

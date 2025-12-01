@@ -1,0 +1,312 @@
+/* report.css – Professional styling for the QA report */
+
+.report-container {
+    font-family: 'Inter', sans-serif;
+    color: #1f2937;
+    /* gray‑900 */
+    line-height: 1.6;
+    background-color: #f3f4f6;
+    /* gray-100 background for the whole page */
+    min-height: 100vh;
+    padding: 24px;
+}
+
+/* Toolbar */
+.report-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 210mm;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.toolbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: #0f172a;
+}
+
+.toolbar-size {
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 24px;
+    text-align: center;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background-color: #e2e8f0;
+}
+
+.toolbar-download {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #0f172a;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Printable content */
+.report-content {
+    padding: 40px;
+    /* Print margins */
+    background-color: white;
+    max-width: 210mm;
+    /* A4 width */
+    margin: 0 auto;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-height: 297mm;
+    /* A4 height */
+}
+
+.report-section {
+    margin-bottom: 32px;
+}
+
+.report-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    color: #111827;
+}
+
+.report-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    color: #374151;
+}
+
+.report-meta,
+.report-url {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+/* Stories list */
+.stories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.story {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 24px;
+}
+
+.story:last-child {
+    border-bottom: none;
+}
+
+.story-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 24px;
+}
+
+.story-info {
+    flex: 1;
+    min-width: 0;
+    /* Allow text truncate/wrap */
+}
+
+.story-feature {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+    /* Increased from 0.875rem */
+    font-weight: 700;
+    /* Bold */
+    color: #111827;
+    /* Darker color */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 4px;
+    display: inline-block;
+}
+
+.story-title {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    word-wrap: break-word;
+}
+
+.story-criteria {
+    margin: 0;
+    color: #4b5563;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    /* Respect line breaks */
+    word-wrap: break-word;
+}
+
+.story-status {
+    text-align: right;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+.status-pass {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-fail {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-pending {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-dates {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+.date-start,
+.date-end {
+    display: block;
+}
+
+.log-block {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    border-radius: 6px;
+    margin-top: 16px;
+}
+
+.log-block strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.log-block pre {
+    margin: 0;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #1f2937;
+    white-space: pre-wrap;
+    /* CSS3 */
+    white-space: -moz-pre-wrap;
+    /* Mozilla, since 1999 */
+    white-space: -pre-wrap;
+    /* Opera 4-6 */
+    white-space: -o-pre-wrap;
+    /* Opera 7 */
+    word-wrap: break-word;
+    /* Internet Explorer 5.5+ */
+}
+
+.screenshot-block {
+    margin-top: 32px;
+    /* Increased from 16px */
+}
+
+.report-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Applied during PDF generation to strip screen styles */
+.printing {
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background-color: white !important;
+}
+
+/* Print Styles */
+@media print {
+    .report-container {
+        background: white;
+        padding: 0;
+        min-height: auto;
+    }
+
+    .report-toolbar {
+        display: none !important;
+    }
+
+    .report-content {
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    .story {
+        break-inside: avoid;
+    }
+
+    .log-block {
+        border: 1px solid #ccc;
+    }
+}
